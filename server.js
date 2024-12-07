@@ -2,6 +2,11 @@
 const express = require('express')
 const app = express()
 
+// 폴더를 server.js에 등록해두면
+// 폴더안에 파일들 html에서 사용 가능
+app.use(express.static(__dirname + '/public'))
+// app.use(express.static(__dirname + '/public2'))
+
 
 app.listen(8080, () => { // 서버 띄우는 코드
   console.log('http://localhost:8080에서 서버 실행중')  
