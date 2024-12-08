@@ -7,6 +7,9 @@ const app = express()
 app.use(express.static(__dirname + '/public'))
 // app.use(express.static(__dirname + '/public2'))
 
+// ejs 라이브러리 세팅
+app.set("view engine", 'ejs')
+
 const { MongoClient } = require('mongodb')
 
 let db;
@@ -44,6 +47,10 @@ app.get("/about", (req, res) => {
 
 app.get('/list', async (req, res) => {
   let result = await db.collection('post').find().toArray()
-  console.log(result)
-  res.send(result)
+  // ejs파일 렌더링은 res.sendFile이 아닌 res.render
+  res.render('list.ejs', { 글목록 : result })
+})
+
+app.get("/time", (req, res) => {
+  res.render('time.ejs', {time : new Date()})
 })
