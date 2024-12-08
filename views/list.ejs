@@ -29,16 +29,15 @@
     </style>
 </head>
 <body class="grey-bg">
-<!--<%= JSON.stringify(글목록)%>-->
+<%- include("nav.ejs")%>
+<!--<%= JSON.stringify(post)%>-->
 <div class="white-bg">
+    <% for (let i = 0; i < post.length; i++){ %>
     <div class="list-box">
-        <h4><%= 글목록[0].title%></h4>
-        <p><%= 글목록[0].content%></p>
+        <h4><%= post[i].title%></h4>
+        <p><%= post[i].content%></p>
     </div>
-    <div class="list-box">
-        <h4><%= 글목록[1].title%></h4>
-        <p><%= 글목록[1].content%></p>
-    </div>
+    <%} %>
 </div>
 
 </body>

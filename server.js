@@ -48,7 +48,7 @@ app.get("/about", (req, res) => {
 app.get('/list', async (req, res) => {
   let result = await db.collection('post').find().toArray()
   // ejs파일 렌더링은 res.sendFile이 아닌 res.render
-  res.render('list.ejs', { 글목록 : result })
+  res.render('list.ejs', { post : result })
 })
 
 app.get("/time", (req, res) => {
