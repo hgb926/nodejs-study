@@ -41,3 +41,9 @@ app.get("/shop", (req, res) => {
 app.get("/about", (req, res) => {
   res.sendFile(__dirname + '/about.html')
 })
+
+app.get('/list', async (req, res) => {
+  let result = await db.collection('post').find().toArray()
+  console.log(result)
+  res.send(result)
+})
