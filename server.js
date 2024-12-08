@@ -7,10 +7,21 @@ const app = express()
 app.use(express.static(__dirname + '/public'))
 // app.use(express.static(__dirname + '/public2'))
 
+const { MongoClient } = require('mongodb')
 
-app.listen(8080, () => { // 서버 띄우는 코드
-  console.log('http://localhost:8080에서 서버 실행중')  
+let db;
+const url = "mongodb+srv://root:mongodb@cluster0.ugbml." +
+    "mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+new MongoClient(url).connect().then((client) => {
+  console.log("DB연결 성공");
+  db = client.db("forum");
+  app.listen(8080, () => { // 서버 띄우는 코드
+    console.log('http://localhost:8080에서 서버 실행중')
+  })
+}).catch((err)=>{
+  console.log(err)
 })
+
 
 app.get('/', (req, res) => {
   // html파일을 응답으로 보내려면 res.sendFile()
@@ -18,8 +29,9 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html')
 })
 
-app.get('/news', (req, res) => {
-  res.send("오늘 비옴")
+app.get('/news', (req , res) => {
+  db.collection('post').insertOne({title: "어쩌구"})
+  // res.send("오늘 비옴")
 })
 
 app.get("/shop", (req, res) => {
