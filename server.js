@@ -10,6 +10,10 @@ app.use(express.static(__dirname + '/public'))
 // ejs 라이브러리 세팅
 app.set("view engine", 'ejs')
 
+// post요청 console (req.body 쉽게 읽기)
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+
 const { MongoClient } = require('mongodb')
 
 let db;
@@ -53,4 +57,14 @@ app.get('/list', async (req, res) => {
 
 app.get("/time", (req, res) => {
   res.render('time.ejs', {time : new Date()})
+})
+
+app.get('/write', (req, res) => {
+  res.render('write.ejs')
+})
+
+app.post('/add', (req, res) => {
+  const response = req.body;
+  console.log(`response : `, response)
+  db.collection('post').insertOne({title: response.title, content: response.content})
 })
