@@ -34,7 +34,11 @@
 <div class="white-bg">
     <% for (let i = 0; i < post.length; i++){ %>
     <div class="list-box">
-        <h4><%= post[i].title%></h4>
+        <h4>
+            <a href="/detail/<%=post[i]._id%>">
+                <%= post[i].title%>
+            </a>
+        </h4>
         <p><%= post[i].content%></p>
     </div>
     <%} %>

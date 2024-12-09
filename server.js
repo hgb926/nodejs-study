@@ -14,7 +14,7 @@ app.set("view engine", 'ejs')
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
-const {MongoClient} = require('mongodb')
+const {MongoClient, ObjectId} = require('mongodb')
 
 let db;
 const url = "mongodb+srv://root:mongodb@cluster0.ugbml." +
@@ -50,7 +50,7 @@ app.get("/about", (req, res) => {
 })
 
 app.get('/list', async (req, res) => {
-    let result = await db.collection('post').find().toArray()
+    let result = await db.collection('post').find().toArray() // findAll()
     // ejs파일 렌더링은 res.sendFile이 아닌 res.render
     res.render('list.ejs', {post: result})
 })
@@ -75,8 +75,21 @@ app.post('/add', async (req, res) => {
         await db.collection('post').insertOne({title: response.title, content: response.content})
         res.redirect("/list")
 
-    } catch(e) {
+    } catch (e) {
         console.log(e)
         res.status(500).send("서버에러남")
+    }
+})
+
+app.get('/detail/:id', async (req, res) => {
+    try {
+        const result = await db.collection('post').findOne({_id: new ObjectId(req.params.id)});
+
+        if (!result) res.status(400).send("요청 url 이상함")
+
+        res.render('detail.ejs', {result: result})
+    } catch (e) {
+        console.log(e)
+        res.status(404).send("url error")
     }
 })
