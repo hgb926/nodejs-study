@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .grey-bg {
+            background: #eee;
+        }
+        .white-bg {
+            background: white;
+            margin: 20px;
+            border-radius: 5px;
+        }
+        .list-box {
+            padding : 10px;
+            border-bottom: 1px solid#eee;
+        }
+        .list-box h4{
+            font-size: 16px;
+            margin: 5px;
+        }
+        .list-box p {
+            font-size: 13px;
+            margin: 5px;
+            color: grey;
+        }
+        input,div {
+            box-sizing: border-box;
+        }
+        .form-box {
+            background : white;
+            padding : 25px;
+            margin: 20px;
+            border-radius: 8px;
+        }
+        .form-box input {
+            padding : 10px;
+            font-size: 16px;
+            width: 100%;
+            border: 1px solid black;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .form-box button {
+            padding: 10px;
+            border : none;
+            background : lightgrey;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body class="grey-bg">
+<%- include("nav.ejs")%>
+<div class="white-bg">
+    <%JSON.stringify(result)%>
+    <form class="form-box" action="/update" method="POST">
+        <h4>수정하기</h4>
+        <input hidden="" name="id" value="<%=result._id%>" style="display: none">
+        <input value="<%=result.title%>" name="title">
+        <input value="<%=result.content%>" name="content">
+        <button type="submit">전송</button>
+    </form>
+</div>
+
+</body>
+</html>

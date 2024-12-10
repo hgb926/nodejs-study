@@ -93,3 +93,43 @@ app.get('/detail/:id', async (req, res) => {
         res.status(404).send("url error")
     }
 })
+
+app.get('/edit/:id', async (req, res) => {
+    try {
+        const result = await db.collection('post').findOne({_id: new ObjectId(req.params.id)});
+        if (!result) res.status(400).send("요청 url 이상함")
+        res.render('edit.ejs', {result: result})
+    } catch (e) {
+        console.log(e)
+        res.status(404).send("url error")
+    }
+})
+
+
+app.post('/update', async (req, res) => {
+    try {
+        const result = req.body;
+
+        // id 검증
+        if (!ObjectId.isValid(result.id)) {
+            return res.status(400).send("유효하지 않은 ID입니다.");
+        }
+
+        // 업데이트 수행
+        const updateResult = await db.collection('post').updateOne(
+            { _id: new ObjectId(result.id) },
+            { $set: { title: result.title, content: result.content } }
+        );
+
+        // 업데이트 성공 여부 확인
+        if (updateResult.matchedCount === 0) {
+            return res.status(404).send("해당 ID를 가진 문서를 찾을 수 없습니다.");
+        }
+
+        console.log(result);
+        res.redirect('/list');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("서버 내부 오류");
+    }
+});
