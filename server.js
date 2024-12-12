@@ -137,3 +137,9 @@ app.put('/update', async (req, res) => {
         res.status(500).send("서버 내부 오류");
     }
 });
+
+app.delete('/delete',  async (req, res) => {
+    await db.collection('post').deleteOne({
+        _id: new ObjectId(req.query.docid)})
+    res.send("삭제완료")
+})
