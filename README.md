@@ -7,3 +7,5 @@
 - npm install express
 - npm install ejs
   - template engine
+- npm install method-override
+  - form태그 확장 (put,delete 가능케 하는)

@@ -1,6 +1,11 @@
 // express 라이브러리 사용한단 뜻
 const express = require('express')
 const app = express()
+const {MongoClient, ObjectId} = require('mongodb')
+const methodOverride = require('method-override')
+
+// method-override
+app.use(methodOverride('_method'))
 
 // 폴더를 server.js에 등록해두면
 // 폴더안에 파일들 html에서 사용 가능
@@ -14,7 +19,6 @@ app.set("view engine", 'ejs')
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
-const {MongoClient, ObjectId} = require('mongodb')
 
 let db;
 const url = "mongodb+srv://root:mongodb@cluster0.ugbml." +
@@ -106,7 +110,7 @@ app.get('/edit/:id', async (req, res) => {
 })
 
 
-app.post('/update', async (req, res) => {
+app.put('/update', async (req, res) => {
     try {
         const result = req.body;
 
