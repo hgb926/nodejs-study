@@ -4,6 +4,18 @@ const app = express()
 const {MongoClient, ObjectId} = require('mongodb')
 const methodOverride = require('method-override')
 
+const session = require('express-session')
+const passport = require('passport')
+const LocalStrategy = require('passport-local')
+
+app.use(passport.initialize())
+app.use(session({
+    secret: '암호화에 쓸 비번',
+    resave: false, // 유저가 요청을 보낼때마다 세션을 갱신할건지
+    saveUninitialized: false, // 로그인 안해도 세션 만들것인지
+}))
+app.use(passport.session())
+
 // method-override
 app.use(methodOverride('_method'))
 
@@ -148,4 +160,37 @@ app.get('/list/:id', async (req, res) => {
     // 페이징. limit() 함수 사용
     let result = await db.collection('post').find().skip((req.params.id - 1) * 5).limit(5).toArray()
     res.render('list.ejs', {post: result})
+})
+
+
+passport.use(new LocalStrategy(async (inputId, inputPw, cb) => {
+    try {
+        console.log(inputId, inputPw, cb)
+        let result = await db.collection('user').findOne({username: inputId})
+        if (!result) { // 일치하지않으면 false를 넣어야함
+            return cb(null, false, {message: '아이디 DB에 없음'})
+        }
+        if (result.password === inputPw) {
+            return cb(null, result)
+        } else {
+            return cb(null, false, {message: "비번 불일치"})
+        }
+    } catch (e) {
+        console.log(e)
+    }
+}))
+
+app.get('/login', (req, res) => {
+    res.render('login.ejs')
+})
+
+app.post('/login', async (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) return res.status(500).json(err)
+        if (!user) return res.status(401).json(info.message)
+        req.login(user, (err) => {
+            if (err) return next(err)
+            res.redirect("/")
+        })
+    })(req, res, next)
 })
