@@ -13,6 +13,7 @@ app.use(session({
     secret: '암호화에 쓸 비번',
     resave: false, // 유저가 요청을 보낼때마다 세션을 갱신할건지
     saveUninitialized: false, // 로그인 안해도 세션 만들것인지
+    cookie : { maxAge : 60 * 60 * 1000 } // 1시간 유효, 세션 document 유효시간 변경 가능
 }))
 app.use(passport.session())
 
@@ -46,6 +47,27 @@ new MongoClient(url).connect().then((client) => {
 })
 
 
+// req.login() 쓰면 자동실행됨
+passport.serializeUser((user, done) => {
+    process.nextTick(() => {
+        done(null, {
+            id : user._id,
+            username : user.username,
+        })
+    })
+})
+
+// 유저가 보낸 쿠키 분석하는 모듈
+passport.deserializeUser(async (user, done) => {
+    const result = await db.collection('user').findOne({_id: new ObjectId(user.id)});
+    delete result.password
+    process.nextTick(() => {
+        done(null, result) // 쿠키가 이상없으면 현재 로그인된 유저정보 알려줌
+    })
+})
+
+
+
 app.get('/', (req, res) => {
     // html파일을 응답으로 보내려면 res.sendFile()
     //  현재 프로젝트 절대경로 + 보낼 html
@@ -68,7 +90,7 @@ app.get("/about", (req, res) => {
 app.get('/list', async (req, res) => {
     let result = await db.collection('post').find().toArray() // findAll()
     // ejs파일 렌더링은 res.sendFile이 아닌 res.render
-    res.render('list.ejs', {post: result})
+    res.render('list.ejs', {post: result, user: req.user})
 })
 
 app.get("/time", (req, res) => {
@@ -162,7 +184,7 @@ app.get('/list/:id', async (req, res) => {
     res.render('list.ejs', {post: result})
 })
 
-
+// passport.authenticate('local') 쓰면 자동실행 됨
 passport.use(new LocalStrategy(async (inputId, inputPw, cb) => {
     try {
         console.log(inputId, inputPw, cb)
@@ -181,6 +203,7 @@ passport.use(new LocalStrategy(async (inputId, inputPw, cb) => {
 }))
 
 app.get('/login', (req, res) => {
+    console.log(`user: ${req.user}`)
     res.render('login.ejs')
 })
 
