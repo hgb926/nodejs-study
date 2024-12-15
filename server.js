@@ -3,17 +3,22 @@ const express = require('express')
 const app = express()
 const {MongoClient, ObjectId} = require('mongodb')
 const methodOverride = require('method-override')
-
 const session = require('express-session')
 const passport = require('passport')
 const LocalStrategy = require('passport-local')
+const bcrypt = require('bcrypt')
+const MongoStore = require('connect-mongo')
 
 app.use(passport.initialize())
 app.use(session({
     secret: '암호화에 쓸 비번',
     resave: false, // 유저가 요청을 보낼때마다 세션을 갱신할건지
     saveUninitialized: false, // 로그인 안해도 세션 만들것인지
-    cookie : { maxAge : 60 * 60 * 1000 } // 1시간 유효, 세션 document 유효시간 변경 가능
+    cookie : { maxAge : 60 * 60 * 1000 }, // 1시간 유효, 세션 document 유효시간 변경 가능
+    store : MongoStore.create({
+        mongoUrl : 'mongodb+srv://root:mongodb@cluster0.ugbml.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', // DB접속용 url
+        dbName : 'forum', // db네임
+    })
 }))
 app.use(passport.session())
 
@@ -34,8 +39,7 @@ app.use(express.urlencoded({extended: true}))
 
 
 let db;
-const url = "mongodb+srv://root:mongodb@cluster0.ugbml." +
-    "mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const url = "mongodb+srv://root:mongodb@cluster0.ugbml.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 new MongoClient(url).connect().then((client) => {
     console.log("DB연결 성공");
     db = client.db("forum");
@@ -58,6 +62,7 @@ passport.serializeUser((user, done) => {
 })
 
 // 유저가 보낸 쿠키 분석하는 모듈
+// 이 코드가 있으면 하위의 어느 API에서나 req.user로 유저의 정보를 가져올 수 있다.
 passport.deserializeUser(async (user, done) => {
     const result = await db.collection('user').findOne({_id: new ObjectId(user.id)});
     delete result.password
@@ -192,7 +197,8 @@ passport.use(new LocalStrategy(async (inputId, inputPw, cb) => {
         if (!result) { // 일치하지않으면 false를 넣어야함
             return cb(null, false, {message: '아이디 DB에 없음'})
         }
-        if (result.password === inputPw) {
+
+        if (await bcrypt.compare(inputPw, result.password)) {
             return cb(null, result)
         } else {
             return cb(null, false, {message: "비번 불일치"})
@@ -216,4 +222,19 @@ app.post('/login', async (req, res, next) => {
             res.redirect("/")
         })
     })(req, res, next)
+})
+
+app.get('/register', (req, res) => {
+    res.render('register.ejs')
+})
+
+app.post('/register', async (req, res) => {
+
+    const hashed = await bcrypt.hash(req.body.password, 10);
+
+    await db.collection('user').insertOne({
+        username: req.body.username,
+        password: hashed
+    })
+    res.redirect('/')
 })

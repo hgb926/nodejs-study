@@ -13,3 +13,7 @@
   - passport - 회원 인증 도와주는 main라이브러리
   - passport-local - id, pw방식으로 회원인증할때 쓰는 라이브러리
   - express-session - session만들때 도와주는 라이브러리
+- npm install bcrypt
+  - 비밀번호 해싱
+- npm install connect-mongo
+  - db에 세션 저장 라이브러리
