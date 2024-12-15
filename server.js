@@ -143,3 +143,9 @@ app.delete('/delete',  async (req, res) => {
         _id: new ObjectId(req.query.docid)})
     res.send("삭제완료")
 })
+
+app.get('/list/:id', async (req, res) => {
+    // 페이징. limit() 함수 사용
+    let result = await db.collection('post').find().skip((req.params.id - 1) * 5).limit(5).toArray()
+    res.render('list.ejs', {post: result})
+})

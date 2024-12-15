@@ -45,6 +45,9 @@
     </div>
     <%} %>
 </div>
+
+<a href="/list/<%=post[post.length - 1]._id%>">다음</a>
+
 <script>
     <!--console.log('<%=post%>')-->
     for(let i = 0; i < '<%= post.length %>'; i++) {
