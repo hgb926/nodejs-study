@@ -8,8 +8,6 @@ const passport = require('passport')
 const LocalStrategy = require('passport-local')
 const bcrypt = require('bcrypt')
 const MongoStore = require('connect-mongo')
-const env = require('dotenv')
-env.config();
 
 app.use(passport.initialize())
 app.use(session({
@@ -18,7 +16,7 @@ app.use(session({
     saveUninitialized: false, // 로그인 안해도 세션 만들것인지
     cookie : { maxAge : 60 * 60 * 1000 }, // 1시간 유효, 세션 document 유효시간 변경 가능
     store : MongoStore.create({
-        mongoUrl : `mongodb+srv://${process.env.DB_CLIENT}:mongodb@cluster0.ugbml.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`, // DB접속용 url
+        mongoUrl : 'mongodb+srv://root:mongodb@cluster0.ugbml.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', // DB접속용 url
         dbName : 'forum', // db네임
     })
 }))
@@ -41,7 +39,7 @@ app.use(express.urlencoded({extended: true}))
 
 
 let db;
-const url = `mongodb+srv://${process.env.DB_CLIENT}:mongodb@cluster0.ugbml.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+const url = "mongodb+srv://root:mongodb@cluster0.ugbml.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 new MongoClient(url).connect().then((client) => {
     console.log("DB연결 성공");
     db = client.db("forum");
