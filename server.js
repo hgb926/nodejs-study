@@ -18,7 +18,7 @@ app.use(session({
     saveUninitialized: false, // 로그인 안해도 세션 만들것인지
     cookie : { maxAge : 60 * 60 * 1000 }, // 1시간 유효, 세션 document 유효시간 변경 가능
     store : MongoStore.create({
-        mongoUrl : `mongodb+srv://${process.env.DB_USER}:mongodb@cluster0.ugbml.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`, // DB접속용 url
+        mongoUrl : process.env.MONGO_URL, // DB접속용 url,
         dbName : 'forum', // db네임
     })
 }))
@@ -41,11 +41,11 @@ app.use(express.urlencoded({extended: true}))
 
 
 let db;
-const url = `mongodb+srv://${process.env.DB_USER}:mongodb@cluster0.ugbml.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+const url = process.env.MONGO_URL;
 new MongoClient(url).connect().then((client) => {
     console.log("DB연결 성공");
     db = client.db("forum");
-    app.listen(8080, () => { // 서버 띄우는 코드
+    app.listen(process.env.PORT, () => { // 서버 띄우는 코드
         console.log('http://localhost:8080에서 서버 실행중')
     })
 }).catch((err) => {
