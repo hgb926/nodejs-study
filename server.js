@@ -11,6 +11,7 @@ const MongoStore = require('connect-mongo')
 const env = require('dotenv')
 env.config()
 
+
 app.use(passport.initialize())
 app.use(session({
     secret: '암호화에 쓸 비번',
@@ -72,6 +73,44 @@ passport.deserializeUser(async (user, done) => {
         done(null, result) // 쿠키가 이상없으면 현재 로그인된 유저정보 알려줌
     })
 })
+
+
+
+// 미들웨어 함수 : 로그인 여부 검사하는 코드 처럼 자주쓰이는 코드를 모듈화
+// next는 미들웨어 실행을 끝내고 다음으로 진행할지 여부를 결정하는 파라미터
+const checkAuthenticate = (req, res, next) => {
+    const excludedRoutes = ['/login', '/register'];
+
+    if (excludedRoutes.includes(req.path)) {
+        // 제외된 경로는 인증 검사를 건너뛴다
+        return next();
+    }
+
+    if (!req.user) {
+        // 인증되지 않은 경우
+        return res.send("로그인 하세요");
+    }
+
+    // 인증된 경우 다음 미들웨어로 진행
+    next();
+};
+
+
+const showTime = (req, res, next) => {
+    console.log(new Date())
+    next();
+}
+
+const checkInputValue = (req, res, next) => {
+
+    req.method === 'POST' && (!req.body.username || !req.body.password) ? res.send("빈값 안받는다") : next()
+}
+
+app.use('/login', checkInputValue)
+app.use(showTime)
+app.use(checkAuthenticate) // 여 코드 밑에 있는 API는 미들웨어 적용됨
+
+
 
 
 
@@ -194,21 +233,29 @@ app.get('/list/:id', async (req, res) => {
 // passport.authenticate('local') 쓰면 자동실행 됨
 passport.use(new LocalStrategy(async (inputId, inputPw, cb) => {
     try {
-        console.log(inputId, inputPw, cb)
-        let result = await db.collection('user').findOne({username: inputId})
-        if (!result) { // 일치하지않으면 false를 넣어야함
-            return cb(null, false, {message: '아이디 DB에 없음'})
+        console.log("입력된 ID:", inputId);
+        console.log("입력된 PW:", inputPw);
+        let result = await db.collection('user').findOne({ username: inputId });
+
+        if (!result) {
+            console.log("ID 없음");
+            return cb(null, false, { message: "아이디 DB에 없음" });
         }
 
+        console.log("DB에 저장된 PW:", result.password);
+
         if (await bcrypt.compare(inputPw, result.password)) {
-            return cb(null, result)
+            console.log("비번 일치");
+            return cb(null, result);
         } else {
-            return cb(null, false, {message: "비번 불일치"})
+            console.log("비번 불일치");
+            return cb(null, false, { message: "비번 불일치" });
         }
     } catch (e) {
-        console.log(e)
+        console.log("에러 발생:", e);
+        return cb(e);
     }
-}))
+}));
 
 app.get('/login', (req, res) => {
     console.log(`user: ${req.user}`)
@@ -216,6 +263,9 @@ app.get('/login', (req, res) => {
 })
 
 app.post('/login', async (req, res, next) => {
+
+    if (!req.body.username || !req.body.password) return res.send("빈값 안받는다")
+
     passport.authenticate('local', (err, user, info) => {
         if (err) return res.status(500).json(err)
         if (!user) return res.status(401).json(info.message)
