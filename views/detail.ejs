@@ -10,6 +10,13 @@
             padding: 15px;
             margin-top: 10px;
         }
+        .frame {
+            width: 600px;
+            height: 800px;
+        }
+        .frame > img {
+            width: 100%;
+        }
     </style>
 </head>
 <body class="grey-bg">
@@ -17,6 +24,11 @@
 <div class="detail-bg">
     <h4><%= result.title%></h4>
     <p><%= result.content%></p>
+    <% if (result.image && result.image.trim() !== "") { %>
+        <div class="frame">
+            <img src="<%= result.image %>" alt="이미지">
+        </div>
+    <% } %>
 </div>
 </body>
 </html>

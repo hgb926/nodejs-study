@@ -10,6 +10,26 @@ const bcrypt = require('bcrypt')
 const MongoStore = require('connect-mongo')
 const env = require('dotenv')
 env.config()
+const { S3Client } = require('@aws-sdk/client-s3')
+const multer = require('multer')
+const multerS3 = require('multer-s3')
+const s3 = new S3Client({
+    region : 'ap-northeast-2',
+    credentials : {
+        accessKeyId : process.env.S3_ACCESS_KEY,
+        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY
+    }
+})
+
+const upload = multer({
+    storage: multerS3({
+        s3: s3,
+        bucket: 'node-forum1217',
+        key: function (req, file, cb) {
+            cb(null, Date.now().toString()) // 파일명
+        }
+    })
+})
 
 
 app.use(passport.initialize())
@@ -147,16 +167,22 @@ app.get('/write', (req, res) => {
     res.render('write.ejs')
 })
 
-app.post('/add', async (req, res) => {
+app.post('/add', upload.single('image'), async (req, res) => {
+
+    console.log('req.location: ',req.file.location)
+
     const response = req.body;
-    console.log('response : ', response)
     try {
         // 입력값 검증 (예외처리)
         if (!response.title || !response.content) {
             res.send('제목입력 안됨')
             return;
         }
-        await db.collection('post').insertOne({title: response.title, content: response.content})
+        await db.collection('post').insertOne({
+            title: response.title,
+            content: response.content,
+            image: req.file.location, // url주소
+        })
         res.redirect("/list")
 
     } catch (e) {
@@ -233,22 +259,15 @@ app.get('/list/:id', async (req, res) => {
 // passport.authenticate('local') 쓰면 자동실행 됨
 passport.use(new LocalStrategy(async (inputId, inputPw, cb) => {
     try {
-        console.log("입력된 ID:", inputId);
-        console.log("입력된 PW:", inputPw);
         let result = await db.collection('user').findOne({ username: inputId });
 
         if (!result) {
-            console.log("ID 없음");
             return cb(null, false, { message: "아이디 DB에 없음" });
         }
 
-        console.log("DB에 저장된 PW:", result.password);
-
         if (await bcrypt.compare(inputPw, result.password)) {
-            console.log("비번 일치");
             return cb(null, result);
         } else {
-            console.log("비번 불일치");
             return cb(null, false, { message: "비번 불일치" });
         }
     } catch (e) {
@@ -258,7 +277,6 @@ passport.use(new LocalStrategy(async (inputId, inputPw, cb) => {
 }));
 
 app.get('/login', (req, res) => {
-    console.log(`user: ${req.user}`)
     res.render('login.ejs')
 })
 

@@ -54,10 +54,11 @@
 <body class="grey-bg">
 <%- include("nav.ejs")%>
 <div class="white-bg">
-    <form class="form-box" action="/add" method="POST">
+    <form class="form-box" action="/add" method="POST" enctype="multipart/form-data">
         <h4>글쓰기</h4>
         <input type="text" name="title">
         <input type="text" name="content">
+        <input type="file" name="image" accept="image/*" multiple>
         <button type="submit">전송</button>
     </form>
 </div>

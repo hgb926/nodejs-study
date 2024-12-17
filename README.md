@@ -17,3 +17,9 @@
   - 비밀번호 해싱
 - npm install connect-mongo
   - db에 세션 저장 라이브러리
+- npm install dotenv
+  - env파일 활성화 
+- npm install multer multer-s3 @aws-sdk/client-s3
+  - multer - 유저가 보낸 파일 다루기 쉬워짐
+  - multer-s3 - s3 업로드 도와줌
+  - aws-sdk/client-s3 - aws환경 도우미
