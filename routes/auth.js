@@ -6,7 +6,6 @@ const bcrypt = require("bcrypt");
 
 let db;
 connectDB.then((client) => {
-    console.log("DB연결 성공");
     db = client.db("forum")
 }).catch((err) => {
     console.log(err)
