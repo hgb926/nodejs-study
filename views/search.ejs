@@ -46,6 +46,7 @@
 <input class="search">
 <button class="search-send">검색</button>
 
+<h2 style="margin-left: 20px">"<%= word%>" 검색결과 (<%= post.length%>건)</h2>
 <div class="white-bg">
     <% for (let i = 0; i < post.length; i++){ %>
     <div class="list-box">
@@ -61,14 +62,14 @@
     <%} %>
 </div>
 
-<a href="/list/<%=post[post.length - 1]._id%>">다음</a>
+
 
 <script>
 
     document.querySelector('.search-send').addEventListener('click', () => {
         const inputVal = document.querySelector('.search').value;
         location.href = '/board/search?val=' + inputVal
-    })
+   })
 
 
     for(let i = 0; i < '<%= post.length %>'; i++) {

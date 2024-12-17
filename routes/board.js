@@ -133,5 +133,13 @@ router.get('/list/:id', async (req, res) => {
     res.render('list.ejs', {post: result})
 })
 
+router.get('/search', async (req, res) => {
+    const post = await db.collection('post')
+        .find({title : { $regex : req.query.val }})
+        .toArray();
+    console.log(post)
+    res.render('search.ejs', {post: post, word : req.query.val})
+})
+
 
 module.exports = router
