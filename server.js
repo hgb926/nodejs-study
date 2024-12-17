@@ -119,16 +119,6 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html')
 })
 
-app.get('/news', (req, res) => {
-    db.collection('post').insertOne({title: "어쩌구"})
-    // res.send("오늘 비옴")
-})
-
-
-app.get("/time", (req, res) => {
-    res.render('time.ejs', {time: new Date()})
-})
-
 
 
 // passport.authenticate('local') 쓰면 자동실행 됨
@@ -152,7 +142,7 @@ passport.use(new LocalStrategy(async (inputId, inputPw, cb) => {
 }));
 
 
-
-app.use('/auth', require('./routes/auth'))
+app.use('/', require('./routes/practice.js'))
+app.use('/auth', require('./routes/auth.js'))
 app.use('/board', require('./routes/board.js'))
 app.use('/shop', require('./routes/shop.js'))
