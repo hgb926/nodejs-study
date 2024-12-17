@@ -61,9 +61,10 @@ app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
 
+const connectDB = require('./database.js');
+
 let db;
-const url = process.env.MONGO_URL;
-new MongoClient(url).connect().then((client) => {
+connectDB.then((client) => {
     console.log("DB연결 성공");
     db = client.db("forum");
     app.listen(process.env.PORT, () => { // 서버 띄우는 코드
@@ -108,7 +109,7 @@ const checkAuthenticate = (req, res, next) => {
 
     if (!req.user) {
         // 인증되지 않은 경우
-        return res.send("로그인 하세요");
+        return res.redirect('/login')
     }
 
     // 인증된 경우 다음 미들웨어로 진행
@@ -308,3 +309,5 @@ app.post('/register', async (req, res) => {
     })
     res.redirect('/')
 })
+
+app.use('/shop', require('./routes/shop.js'))
