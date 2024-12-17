@@ -10,26 +10,6 @@ const bcrypt = require('bcrypt')
 const MongoStore = require('connect-mongo')
 const env = require('dotenv')
 env.config()
-const { S3Client } = require('@aws-sdk/client-s3')
-const multer = require('multer')
-const multerS3 = require('multer-s3')
-const s3 = new S3Client({
-    region : 'ap-northeast-2',
-    credentials : {
-        accessKeyId : process.env.S3_ACCESS_KEY,
-        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY
-    }
-})
-
-const upload = multer({
-    storage: multerS3({
-        s3: s3,
-        bucket: 'node-forum1217',
-        key: function (req, file, cb) {
-            cb(null, Date.now().toString()) // 파일명
-        }
-    })
-})
 
 
 app.use(passport.initialize())
@@ -133,8 +113,6 @@ app.use(checkAuthenticate) // 여 코드 밑에 있는 API는 미들웨어 적�
 
 
 
-
-
 app.get('/', (req, res) => {
     // html파일을 응답으로 보내려면 res.sendFile()
     //  현재 프로젝트 절대경로 + 보낼 html
@@ -146,116 +124,12 @@ app.get('/news', (req, res) => {
     // res.send("오늘 비옴")
 })
 
-app.get("/shop", (req, res) => {
-    res.send("쇼핑페이지입니다")
-})
-
-app.get("/about", (req, res) => {
-    res.sendFile(__dirname + '/about.html')
-})
-
-app.get('/list', async (req, res) => {
-    let result = await db.collection('post').find().toArray() // findAll()
-    // ejs파일 렌더링은 res.sendFile이 아닌 res.render
-    res.render('list.ejs', {post: result, user: req.user})
-})
 
 app.get("/time", (req, res) => {
     res.render('time.ejs', {time: new Date()})
 })
 
-app.get('/write', (req, res) => {
-    res.render('write.ejs')
-})
 
-app.post('/add', upload.single('image'), async (req, res) => {
-
-    console.log('req.location: ',req.file.location)
-
-    const response = req.body;
-    try {
-        // 입력값 검증 (예외처리)
-        if (!response.title || !response.content) {
-            res.send('제목입력 안됨')
-            return;
-        }
-        await db.collection('post').insertOne({
-            title: response.title,
-            content: response.content,
-            image: req.file.location, // url주소
-        })
-        res.redirect("/list")
-
-    } catch (e) {
-        console.log(e)
-        res.status(500).send("서버에러남")
-    }
-})
-
-app.get('/detail/:id', async (req, res) => {
-    try {
-        const result = await db.collection('post').findOne({_id: new ObjectId(req.params.id)});
-
-        if (!result) res.status(400).send("요청 url 이상함")
-
-        res.render('detail.ejs', {result: result})
-    } catch (e) {
-        console.log(e)
-        res.status(404).send("url error")
-    }
-})
-
-app.get('/edit/:id', async (req, res) => {
-    try {
-        const result = await db.collection('post').findOne({_id: new ObjectId(req.params.id)});
-        if (!result) res.status(400).send("요청 url 이상함")
-        res.render('edit.ejs', {result: result})
-    } catch (e) {
-        console.log(e)
-        res.status(404).send("url error")
-    }
-})
-
-
-app.put('/update', async (req, res) => {
-    try {
-        const result = req.body;
-
-        // id 검증
-        if (!ObjectId.isValid(result.id)) {
-            return res.status(400).send("유효하지 않은 ID입니다.");
-        }
-
-        // 업데이트 수행
-        const updateResult = await db.collection('post').updateOne(
-            { _id: new ObjectId(result.id) },
-            { $set: { title: result.title, content: result.content } }
-        );
-
-        // 업데이트 성공 여부 확인
-        if (updateResult.matchedCount === 0) {
-            return res.status(404).send("해당 ID를 가진 문서를 찾을 수 없습니다.");
-        }
-
-        console.log(result);
-        res.redirect('/list');
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("서버 내부 오류");
-    }
-});
-
-app.delete('/delete',  async (req, res) => {
-    await db.collection('post').deleteOne({
-        _id: new ObjectId(req.query.docid)})
-    res.send("삭제완료")
-})
-
-app.get('/list/:id', async (req, res) => {
-    // 페이징. limit() 함수 사용
-    let result = await db.collection('post').find().skip((req.params.id - 1) * 5).limit(5).toArray()
-    res.render('list.ejs', {post: result})
-})
 
 // passport.authenticate('local') 쓰면 자동실행 됨
 passport.use(new LocalStrategy(async (inputId, inputPw, cb) => {
@@ -310,4 +184,5 @@ app.post('/register', async (req, res) => {
     res.redirect('/')
 })
 
+app.use('/board', require('./routes/board.js'))
 app.use('/shop', require('./routes/shop.js'))

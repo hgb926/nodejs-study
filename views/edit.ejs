@@ -55,7 +55,7 @@
 <%- include("nav.ejs")%>
 <div class="white-bg">
     <%JSON.stringify(result)%>
-    <form class="form-box" action="/update?_method=PUT" method="POST">
+    <form class="form-box" action="/board/update?_method=PUT" method="POST">
         <h4>수정하기</h4>
         <input hidden="" name="id" value="<%=result._id%>" style="display: none">
         <input value="<%=result.title%>" name="title">
