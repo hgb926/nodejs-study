@@ -80,7 +80,7 @@ passport.deserializeUser(async (user, done) => {
 // 미들웨어 함수 : 로그인 여부 검사하는 코드 처럼 자주쓰이는 코드를 모듈화
 // next는 미들웨어 실행을 끝내고 다음으로 진행할지 여부를 결정하는 파라미터
 const checkAuthenticate = (req, res, next) => {
-    const excludedRoutes = ['/login', '/register'];
+    const excludedRoutes = ['/auth/login', '/auth/register'];
 
     if (excludedRoutes.includes(req.path)) {
         // 제외된 경로는 인증 검사를 건너뛴다
@@ -89,7 +89,7 @@ const checkAuthenticate = (req, res, next) => {
 
     if (!req.user) {
         // 인증되지 않은 경우
-        return res.redirect('/login')
+        return res.redirect('/auth/login')
     }
 
     // 인증된 경우 다음 미들웨어로 진행
@@ -107,7 +107,7 @@ const checkInputValue = (req, res, next) => {
     req.method === 'POST' && (!req.body.username || !req.body.password) ? res.send("빈값 안받는다") : next()
 }
 
-app.use('/login', checkInputValue)
+app.use('/auth/login', checkInputValue)
 app.use(showTime)
 app.use(checkAuthenticate) // 여 코드 밑에 있는 API는 미들웨어 적용됨
 
@@ -151,38 +151,8 @@ passport.use(new LocalStrategy(async (inputId, inputPw, cb) => {
     }
 }));
 
-app.get('/login', (req, res) => {
-    res.render('login.ejs')
-})
 
-app.post('/login', async (req, res, next) => {
 
-    if (!req.body.username || !req.body.password) return res.send("빈값 안받는다")
-
-    passport.authenticate('local', (err, user, info) => {
-        if (err) return res.status(500).json(err)
-        if (!user) return res.status(401).json(info.message)
-        req.login(user, (err) => {
-            if (err) return next(err)
-            res.redirect("/")
-        })
-    })(req, res, next)
-})
-
-app.get('/register', (req, res) => {
-    res.render('register.ejs')
-})
-
-app.post('/register', async (req, res) => {
-
-    const hashed = await bcrypt.hash(req.body.password, 10);
-
-    await db.collection('user').insertOne({
-        username: req.body.username,
-        password: hashed
-    })
-    res.redirect('/')
-})
-
+app.use('/auth', require('./routes/auth'))
 app.use('/board', require('./routes/board.js'))
 app.use('/shop', require('./routes/shop.js'))
