@@ -3,13 +3,13 @@ const router = require('express').Router();
 const connectDB = require('./../database.js')
 const {ObjectId} = require("mongodb");
 
-const { S3Client } = require('@aws-sdk/client-s3')
+const {S3Client} = require('@aws-sdk/client-s3')
 const multer = require('multer')
 const multerS3 = require('multer-s3')
 const s3 = new S3Client({
-    region : 'ap-northeast-2',
-    credentials : {
-        accessKeyId : process.env.S3_ACCESS_KEY,
+    region: 'ap-northeast-2',
+    credentials: {
+        accessKeyId: process.env.S3_ACCESS_KEY,
         secretAccessKey: process.env.S3_SECRET_ACCESS_KEY
     }
 })
@@ -46,7 +46,7 @@ router.get('/write', (req, res) => {
 
 router.post('/add', upload.single('image'), async (req, res) => {
 
-    console.log('req.location: ',req.file.location)
+    if (req.file && req.file.location) console.log("req.location : ", req.file.location)
 
     const response = req.body;
     try {
@@ -58,7 +58,7 @@ router.post('/add', upload.single('image'), async (req, res) => {
         await db.collection('post').insertOne({
             title: response.title,
             content: response.content,
-            image: req.file.location, // url주소
+            image: req.file ? req.file.location : ""
         })
         res.redirect("/board/list")
 
@@ -104,8 +104,8 @@ router.put('/update', async (req, res) => {
 
         // 업데이트 수행
         const updateResult = await db.collection('post').updateOne(
-            { _id: new ObjectId(result.id) },
-            { $set: { title: result.title, content: result.content } }
+            {_id: new ObjectId(result.id)},
+            {$set: {title: result.title, content: result.content}}
         );
 
         // 업데이트 성공 여부 확인
@@ -121,9 +121,10 @@ router.put('/update', async (req, res) => {
     }
 });
 
-router.delete('/delete',  async (req, res) => {
+router.delete('/delete', async (req, res) => {
     await db.collection('post').deleteOne({
-        _id: new ObjectId(req.query.docid)})
+        _id: new ObjectId(req.query.docid)
+    })
     res.send("삭제완료")
 })
 
@@ -134,11 +135,23 @@ router.get('/list/:id', async (req, res) => {
 })
 
 router.get('/search', async (req, res) => {
-    const post = await db.collection('post')
-        .find({title : { $regex : req.query.val }})
-        .toArray();
-    console.log(post)
-    res.render('search.ejs', {post: post, word : req.query.val})
+    console.log(req.query.val)
+
+    const searchCondition = [
+        {
+            $search: {
+                index: 'title_index',           // db 필드 이름
+                text: {query: req.query.val, path: 'title'}
+            }
+        },
+        // {조건2}, {조건3}
+    ]
+
+    const result = await db.collection('post')
+        .aggregate(searchCondition).toArray();
+    console.log(result)
+
+    res.render('search.ejs', {post: result, word: req.query.val})
 })
 
 
