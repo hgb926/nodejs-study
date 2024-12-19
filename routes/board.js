@@ -133,7 +133,6 @@ router.delete('/delete', async (req, res) => {
         _id: new ObjectId(req.query.docid),
         user : req.user._id
     });
-    console.log(result)
     res.send(result.deletedCount  > 0 ? "삭제완료" : "삭제실패")
 })
 
@@ -164,7 +163,6 @@ router.get('/search', async (req, res) => {
 
 router.post('/comment', async (req, res) => {
     const request = req.body;
-    console.log(request)
     if (!request.content) res.send("입력값 없음")
     try {
         await db.collection('comment').insertOne({
