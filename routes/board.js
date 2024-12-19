@@ -58,7 +58,9 @@ router.post('/add', upload.single('image'), async (req, res) => {
         await db.collection('post').insertOne({
             title: response.title,
             content: response.content,
-            image: req.file ? req.file.location : ""
+            image: req.file ? req.file.location : "",
+            user : req.user._id,
+            username : req.user.username
         })
         res.redirect("/board/list")
 
@@ -122,10 +124,12 @@ router.put('/update', async (req, res) => {
 });
 
 router.delete('/delete', async (req, res) => {
-    await db.collection('post').deleteOne({
-        _id: new ObjectId(req.query.docid)
-    })
-    res.send("삭제완료")
+    const result = await db.collection('post').deleteOne({
+        _id: new ObjectId(req.query.docid),
+        user : req.user._id
+    });
+    console.log(result)
+    res.send(result.deletedCount  > 0 ? "삭제완료" : "삭제실패")
 })
 
 router.get('/list/:id', async (req, res) => {
@@ -149,7 +153,6 @@ router.get('/search', async (req, res) => {
 
     const result = await db.collection('post')
         .aggregate(searchCondition).toArray();
-    console.log(result)
 
     res.render('search.ejs', {post: result, word: req.query.val})
 })

@@ -98,7 +98,7 @@ const checkAuthenticate = (req, res, next) => {
 
 
 const showTime = (req, res, next) => {
-    console.log(new Date())
+    // console.log(new Date())
     next();
 }
 

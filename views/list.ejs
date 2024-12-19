@@ -53,8 +53,10 @@
             <a href="/board/detail/<%=post[i]._id%>">
                 <%= post[i].title%>
             </a>
+            <% if (post[i].username === user.username) { %>
             <a href="/board/edit/<%=post[i]._id%>">✏️️</a>
             <span class="delete" data-id="<%=post[i]._id%>" style="cursor: pointer">🗑️</span>
+            <% } %>
         </h4>
         <p><%= post[i].content%></p>
     </div>
@@ -79,7 +81,8 @@
                 .then(r => r.text())
                 .then(r => {
                     // 삭제 후 새로고침이 되지않기때문에 UI에서 일시적으로 숨겨버리는 코드
-                    e.target.parentElement.parentElement.style.display = "none"
+                    if (r === "삭제완료") e.target.parentElement.parentElement.style.display = "none"
+                    else alert('남의 글임')
                 })
         })
     }
