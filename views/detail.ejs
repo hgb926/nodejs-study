@@ -12,23 +12,61 @@
         }
         .frame {
             width: 600px;
-            height: 800px;
+            margin-bottom: 50px;
         }
         .frame > img {
             width: 100%;
+        }
+        .write-comment {
+            width: 600px;
+            border: 1px solid lightgray;
+            padding: 10px ;
+            border-radius: 16px;
+            background: #efefef;
+        }
+        .submit {
+            margin-left: 10px;
+            padding: 5px 10px;
+            border: 1px solid black;
+            border-radius: 16px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body class="grey-bg">
 <%- include("nav.ejs")%>
 <div class="detail-bg">
-    <h4><%= result.title%></h4>
-    <p><%= result.content%></p>
-    <% if (result.image && result.image.trim() !== "") { %>
+    <h4><%= post.title%></h4>
+    <p><%= post.content%></p>
+    <% if (post.image && post.image.trim() !== "") { %>
         <div class="frame">
-            <img src="<%= result.image %>" alt="이미지">
+            <img src="<%= post.image %>" alt="이미지">
         </div>
     <% } %>
+    <div class="write-comment">
+        <h4>댓글 작성</h4>
+        <input class="comment-input" type="text" name="comment" placeholder="댓글을 입력하세요">
+        <span class="submit">전송</span>
+    </div>
+
 </div>
+
+<script>
+    document.querySelector('.submit').addEventListener('click', () => {
+        const commentVal = document.querySelector('.comment-input').value
+        if (!commentVal) return;
+        const payload = {
+            _id: '<%= post._id%>',
+            content: commentVal,
+            createdAt: new Date()
+        }
+
+        fetch('/board/comment', {
+            method: "POST",
+            headers: { "Content-Type": "Application/json" },
+            body: JSON.stringify(payload)
+        })
+    })
+</script>
 </body>
 </html>

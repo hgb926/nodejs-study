@@ -72,11 +72,11 @@ router.post('/add', upload.single('image'), async (req, res) => {
 
 router.get('/detail/:id', async (req, res) => {
     try {
-        const result = await db.collection('post').findOne({_id: new ObjectId(req.params.id)});
+        const post = await db.collection('post').findOne({_id: new ObjectId(req.params.id)});
 
-        if (!result) res.status(400).send("요청 url 이상함")
+        if (!post) res.status(400).send("요청 url 이상함")
 
-        res.render('detail.ejs', {result: result})
+        res.render('detail.ejs', {post: post})
     } catch (e) {
         console.log(e)
         res.status(404).send("url error")
@@ -157,5 +157,19 @@ router.get('/search', async (req, res) => {
     res.render('search.ejs', {post: result, word: req.query.val})
 })
 
+router.post('/comment', async (req, res) => {
+    const request = req.body;
+    console.log(request)
+    if (!request.content) res.send("입력값 없음")
+    await db.collection('comment').insertOne({
+        post_id: new ObjectId(request._id),
+        content: request.content,
+        createdAt: new Date(),
+        user_id: req.user._id,
+        username : req.user.username
+    })
+    res.redirect(`/board/list`)
+
+})
 
 module.exports = router
