@@ -10,20 +10,24 @@
             padding: 15px;
             margin-top: 10px;
         }
+
         .frame {
             width: 600px;
             margin-bottom: 50px;
         }
+
         .frame > img {
             width: 100%;
         }
+
         .write-comment {
             width: 600px;
             border: 1px solid lightgray;
-            padding: 10px ;
+            padding: 10px;
             border-radius: 16px;
             background: #efefef;
         }
+
         .submit {
             margin-left: 10px;
             padding: 5px 10px;
@@ -31,21 +35,22 @@
             border-radius: 16px;
             cursor: pointer;
         }
+
         .comment-wrap {
             margin-top: 10px;
             width: 600px;
             border: 1px solid lightgray;
-            padding: 10px ;
+            padding: 10px;
             border-radius: 16px;
             background: #f8f8f8;
         }
     </style>
 </head>
 <body class="grey-bg">
-<%- include("nav.ejs")%>
+<%- include("nav.ejs") %>
 <div class="detail-bg">
-    <h4><%= post.title%></h4>
-    <p><%= post.content%></p>
+    <h4><%= post.title %></h4>
+    <p><%= post.content %></p>
     <% if (post.image && post.image.trim() !== "") { %>
         <div class="frame">
             <img src="<%= post.image %>" alt="이미지">
@@ -57,31 +62,47 @@
         <span class="submit">전송</span>
     </div>
     <% for (let i = 0; i < commentList.length; i++) { %>
-    <div class="comment-wrap">
-        <span class="username"><%= commentList[i].username%></span>
-        <span class="time"><%= commentList[i].createdAt%></span>
-        <div><%= commentList[i].content%></div>
-    </div>
+        <div class="comment-wrap">
+            <span class="username"><%= commentList[i].username %></span>
+            <span class="time"><%= commentList[i].createdAt %></span>
+            <div><%= commentList[i].content %></div>
+        </div>
     <% } %>
 </div>
 
 <script>
     document.querySelector('.submit').addEventListener('click', () => {
-        const commentVal = document.querySelector('.comment-input').value
+        const commentVal = document.querySelector('.comment-input').value;
         if (!commentVal) return;
+
         const payload = {
-            _id: '<%= post._id%>',
+            _id: '<%= post._id %>',
             content: commentVal,
             createdAt: new Date(),
-            commentCount: '<%=commentList.length%>'
-        }
+        };
 
         fetch('/board/comment', {
             method: "POST",
-            headers: { "Content-Type": "Application/json" },
-            body: JSON.stringify(payload)
+            headers: {"Content-Type": "Application/json"},
+            body: JSON.stringify(payload),
         })
-    })
+            .then(response => response.text())
+            .then(() => {
+                // 댓글을 동적으로 추가
+                const commentElement = document.createElement('div');
+                commentElement.classList.add('comment-wrap');
+                commentElement.innerHTML = `
+            <span class="username"><%= user.username %></span>
+            <span class="time">${new Date().toLocaleDateString()}</span>
+            <div>${commentVal}</div>
+        `;
+                document.querySelector('.detail-bg').appendChild(commentElement);
+
+                // 입력 필드 초기화
+                document.querySelector('.comment-input').value = "";
+            })
+            .catch(err => console.error(err));
+    });
 </script>
 </body>
 </html>

@@ -81,7 +81,7 @@ router.get('/detail/:id', async (req, res) => {
             ct.createdAt = moment(commentList.createdAt).format("YYYY-MM-DD")
         })
 
-        res.render('detail.ejs', {post: post, commentList : commentList})
+        res.render('detail.ejs', {post: post, commentList : commentList, user: req.user})
     } catch (e) {
         console.log(e)
         res.status(404).send("url error")
@@ -173,12 +173,14 @@ router.post('/comment', async (req, res) => {
             createdAt: new Date(),
             user_id: req.user._id,
             username: req.user.username
-
         });
-            await db.collection('post').updateOne(
-                {_id: new ObjectId(request._id)},
-                {$set: {commentCount: ++request.commentCount}} // 클라이언트에서 댓글 수 보내도록?
-            );
+        const post = await db.collection('post').findOne({_id : new ObjectId(request._id)})
+        const currentCommentCount = post.commentCount || 0;
+
+        await db.collection('post').updateOne(
+            { _id: new ObjectId(request._id) },
+            { $set: { commentCount: currentCommentCount + 1 }}
+        );
 
         // 댓글이 추가된 게시글의 상세 페이지로 이동
         res.redirect(`/board/detail/${request._id}`);
