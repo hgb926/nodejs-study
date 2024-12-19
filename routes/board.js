@@ -2,7 +2,7 @@ const router = require('express').Router();
 
 const connectDB = require('./../database.js')
 const {ObjectId} = require("mongodb");
-
+const moment = require('moment')
 const {S3Client} = require('@aws-sdk/client-s3')
 const multer = require('multer')
 const multerS3 = require('multer-s3')
@@ -59,6 +59,7 @@ router.post('/add', upload.single('image'), async (req, res) => {
             title: response.title,
             content: response.content,
             image: req.file ? req.file.location : "",
+            commentCount: 0,
             user : req.user._id,
             username : req.user.username
         })
@@ -73,10 +74,14 @@ router.post('/add', upload.single('image'), async (req, res) => {
 router.get('/detail/:id', async (req, res) => {
     try {
         const post = await db.collection('post').findOne({_id: new ObjectId(req.params.id)});
-
         if (!post) res.status(400).send("요청 url 이상함")
+        const commentList = await db.collection('comment').find({post_id: new ObjectId(req.params.id)}).toArray();
 
-        res.render('detail.ejs', {post: post})
+        commentList.forEach(ct => {
+            ct.createdAt = moment(commentList.createdAt).format("YYYY-MM-DD")
+        })
+
+        res.render('detail.ejs', {post: post, commentList : commentList})
     } catch (e) {
         console.log(e)
         res.status(404).send("url error")
@@ -161,15 +166,26 @@ router.post('/comment', async (req, res) => {
     const request = req.body;
     console.log(request)
     if (!request.content) res.send("입력값 없음")
-    await db.collection('comment').insertOne({
-        post_id: new ObjectId(request._id),
-        content: request.content,
-        createdAt: new Date(),
-        user_id: req.user._id,
-        username : req.user.username
-    })
-    res.redirect(`/board/list`)
+    try {
+        await db.collection('comment').insertOne({
+            post_id: new ObjectId(request._id),
+            content: request.content,
+            createdAt: new Date(),
+            user_id: req.user._id,
+            username: req.user.username
 
+        });
+            await db.collection('post').updateOne(
+                {_id: new ObjectId(request._id)},
+                {$set: {commentCount: ++request.commentCount}} // 클라이언트에서 댓글 수 보내도록?
+            );
+
+        // 댓글이 추가된 게시글의 상세 페이지로 이동
+        res.redirect(`/board/detail/${request._id}`);
+    } catch (e) {
+        console.error(e);
+        res.status(500).send("댓글 추가 중 오류 발생");
+    }
 })
 
 module.exports = router

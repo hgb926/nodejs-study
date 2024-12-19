@@ -39,6 +39,15 @@
             border-radius: 5px;
             vertical-align: middle;
         }
+        .detail {
+            color: black;
+            margin-right: 5px;
+            font-size: 1.2rem;
+            text-decoration: none;
+        }
+        .edit {
+            text-decoration: none;
+        }
     </style>
 </head>
 <body class="grey-bg">
@@ -50,11 +59,12 @@
     <% for (let i = 0; i < post.length; i++){ %>
     <div class="list-box">
         <h4>
-            <a href="/board/detail/<%=post[i]._id%>">
+            <a class="detail" href="/board/detail/<%=post[i]._id%>">
                 <%= post[i].title%>
             </a>
+            <span>(<%= post[i].commentCount || 0%>)</span>
             <% if (post[i].username === user.username) { %>
-            <a href="/board/edit/<%=post[i]._id%>">✏️️</a>
+            <a class="edit" href="/board/edit/<%=post[i]._id%>">✏️️</a>
             <span class="delete" data-id="<%=post[i]._id%>" style="cursor: pointer">🗑️</span>
             <% } %>
         </h4>

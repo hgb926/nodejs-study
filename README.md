@@ -23,3 +23,5 @@
   - multer - 유저가 보낸 파일 다루기 쉬워짐
   - multer-s3 - s3 업로드 도와줌
   - aws-sdk/client-s3 - aws환경 도우미
+- npm install moment
+  - 날짜 포매팅 라이브러리
