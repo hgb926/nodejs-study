@@ -13,6 +13,9 @@ connectDB.then((client) => {
 
 
 router.get('/login', (req, res) => {
+    if (req.user) {
+        return res.send("이미로그인함")
+    }
     res.render('login.ejs')
 })
 
@@ -31,6 +34,9 @@ router.post('/login', async (req, res, next) => {
 })
 
 router.get('/register', (req, res) => {
+    if (req.user) {
+        return res.send("로그아웃하고 가입하세요")
+    }
     res.render('register.ejs')
 })
 
