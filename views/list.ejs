@@ -32,18 +32,19 @@
         }
 
         .search {
-            margin-top: 20px;
+
             margin-left: 20px;
             padding: 5px;
         }
 
         .search-send {
-            margin-left: 10px;
-            padding: 6px 10px;
-            background: lightgray;
+            padding: 8px 15px;
             border: none;
-            border-radius: 5px;
-            vertical-align: middle;
+            background-color: #333;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
         }
 
         .detail {
@@ -71,19 +72,19 @@
 
 <div class="white-bg">
     <% for (let i = 0; i < post.length; i++){ %>
-    <div class="list-box">
-        <h4>
-            <a class="detail" href="/board/detail/<%= post[i]._id %>">
-                <%= post[i].title %>
-            </a>
-            <span>(<%= post[i].commentCount || 0 %>)</span>
-            <% if (post[i].username === user.username) { %>
-            <a class="edit" href="/board/edit/<%= post[i]._id %>">✏️️</a>
-            <span class="delete" data-id="<%= post[i]._id %>" style="cursor: pointer">🗑️</span>
-            <% } %>
-        </h4>
-        <p><%= post[i].content %></p>
-    </div>
+        <div class="list-box">
+            <h4>
+                <a class="detail" href="/board/detail/<%= post[i]._id %>">
+                    <%= post[i].title %>
+                </a>
+                <span>(<%= post[i].commentCount || 0 %>)</span>
+                <% if (post[i].username === user.username) { %>
+                    <a class="edit" href="/board/edit/<%= post[i]._id %>">✏️️</a>
+                    <span class="delete" data-id="<%= post[i]._id %>" style="cursor: pointer">🗑️</span>
+                <% } %>
+            </h4>
+            <p><%= post[i].content %></p>
+        </div>
     <% } %>
 </div>
 <!--<% if (post.length > 0) { %>-->
