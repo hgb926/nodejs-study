@@ -60,8 +60,8 @@ router.post('/add', upload.single('image'), async (req, res) => {
             content: response.content,
             image: req.file ? req.file.location : "",
             commentCount: 0,
-            user : req.user._id,
-            username : req.user.username
+            user: req.user._id,
+            username: req.user.username
         })
         res.redirect("/board/list")
 
@@ -80,7 +80,7 @@ router.get('/detail/:id', async (req, res) => {
         commentList.forEach(ct => {
             ct.createdAt = moment(commentList.createdAt).format("YYYY-MM-DD")
         })
-        res.render('detail.ejs', {post: post, commentList : commentList, user: req.user})
+        res.render('detail.ejs', {post: post, commentList: commentList, user: req.user})
     } catch (e) {
         console.log(e)
         res.status(404).send("url error")
@@ -130,9 +130,9 @@ router.put('/update', async (req, res) => {
 router.delete('/delete', async (req, res) => {
     const result = await db.collection('post').deleteOne({
         _id: new ObjectId(req.query.docid),
-        user : req.user._id
+        user: req.user._id
     });
-    res.send(result.deletedCount  > 0 ? "삭제완료" : "삭제실패")
+    res.send(result.deletedCount > 0 ? "삭제완료" : "삭제실패")
 })
 
 router.get('/list/:id', async (req, res) => {
@@ -143,9 +143,9 @@ router.get('/list/:id', async (req, res) => {
 
 router.get('/search', async (req, res) => {
     const post = await db.collection('post')
-        .find({title : { $regex : req.query.val }})
+        .find({title: {$regex: req.query.val}})
         .toArray();
-    res.render('search.ejs', {post: post, word : req.query.val})
+    res.render('search.ejs', {post: post, word: req.query.val})
 })
 
 router.post('/comment', async (req, res) => {
@@ -159,12 +159,12 @@ router.post('/comment', async (req, res) => {
             user_id: req.user._id,
             username: req.user.username
         });
-        const post = await db.collection('post').findOne({_id : new ObjectId(request._id)})
+        const post = await db.collection('post').findOne({_id: new ObjectId(request._id)})
         const currentCommentCount = post.commentCount || 0;
 
         await db.collection('post').updateOne(
-            { _id: new ObjectId(request._id) },
-            { $set: { commentCount: currentCommentCount + 1 }}
+            {_id: new ObjectId(request._id)},
+            {$set: {commentCount: currentCommentCount + 1}}
         );
 
         // 댓글이 추가된 게시글의 상세 페이지로 이동
@@ -173,6 +173,59 @@ router.post('/comment', async (req, res) => {
         console.error(e);
         res.status(500).send("댓글 추가 중 오류 발생");
     }
+})
+
+router.get('/chat/request', async (req, res) => {
+    if (req.user._id.equals(new ObjectId(req.query.writerId))) return res.send("불가능한 채팅방입니다.")
+    try {
+        // 해당 채팅방이 이미 존재하는지 확인
+        const flag = await db.collection('chatRoom').findOne({
+            member: { $all: [req.user._id, new ObjectId(req.query.writerId)] }, // $all 사용
+        });
+
+        if (flag) {
+            // 채팅방이 이미 존재할 경우
+            return res.send("이미 있는 채팅방입니다");
+        }
+
+        // 채팅방이 없으면 생성
+        await db.collection('chatRoom').insertOne({
+            member: [req.user._id, new ObjectId(req.query.writerId)],
+            date: new Date(),
+        });
+
+        // 채팅방 목록으로 리다이렉트
+        res.redirect('/board/chat/list');
+    } catch (e) {
+        console.error(e);
+        res.status(500).send("채팅방 생성 중 오류 발생");
+    }
+});
+
+router.get('/chat/list', async (req, res) => {
+
+    const list = await db.collection('chatRoom').find({
+        member: req.user._id
+    }).toArray();
+    for (const chat of list) {
+        const flag = chat.member.some(memberId => memberId.equals(req.user._id));
+        if (!flag) {
+            return res.send("본인이 아닙니다."); // 조건에 맞지 않으면 즉시 응답
+        }
+    }
+    res.render('chatList.ejs', {list: list})
+})
+
+router.get('/chat/detail/:id', async (req, res) => {
+    const result = await db.collection('chatRoom').findOne({
+        _id: new ObjectId(req.params.id)
+    });
+    const flag = result.member.some(id => id.equals(req.user._id));
+    if (!flag) {
+        return res.send("본인이 아닙니다~")
+    }
+
+    res.render('chatDetail.ejs', {result: result})
 })
 
 module.exports = router

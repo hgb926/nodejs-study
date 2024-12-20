@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .grey-bg {
+            background: #eee;
+        }
+
+        .white-bg {
+            background: white;
+            margin: 20px;
+            border-radius: 5px;
+        }
+
+        .list-box {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .list-box h4 {
+            font-size: 16px;
+            margin: 5px;
+        }
+
+        .list-box p {
+            font-size: 13px;
+            margin: 5px;
+            color: grey;
+        }
+
+        .search {
+
+            margin-left: 20px;
+            padding: 5px;
+        }
+
+        .search-send {
+            padding: 8px 15px;
+            border: none;
+            background-color: #333;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .detail {
+            color: black;
+            margin-right: 5px;
+            font-size: 1.2rem;
+            text-decoration: none;
+        }
+
+        .edit {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body class="grey-bg">
+<%- include("nav.ejs") %>
+
+<div class="white-bg">
+    <% for (let i = 0; i < list.length; i++){ %>
+        <div class="list-box">
+            <h4>
+                <a href="/board/chat/detail/<%= list[i]._id%>">채팅방 <%= i %></a>
+            </h4>
+            <p>채팅방 설명</p>
+        </div>
+    <% } %>
+</div>
+
+</body>
+</html>
