@@ -51,5 +51,19 @@ router.post('/register', async (req, res) => {
     res.redirect('/')
 })
 
+router.get('/logout', (req, res) => {
+    req.logout(err => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('로그아웃 처리 중 오류 발생');
+        }
+        // 쿠키 삭제 (express-session이 사용하는 쿠키 이름은 기본적으로 `connect.sid`)
+        res.clearCookie('connect.sid', { path: '/' });
+
+        // 홈 페이지로 리다이렉트
+        res.redirect('/');
+    });
+})
+
 
 module.exports = router
