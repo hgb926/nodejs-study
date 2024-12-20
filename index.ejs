@@ -62,25 +62,24 @@
     </style>
 </head>
 <body>
-<!--<nav>-->
-<!--    <a href="/">NodeJS Study</a>-->
-<!--    <a href="/board/list">게시판</a>-->
-<!--    <a href="/auth/register">회원가입</a>-->
-<!--    <a href="/auth/login">로그인</a>-->
-<!--    <div class="search-box">-->
-<!--        <input type="text" placeholder="검색어를 입력하세요" class="search">-->
-<!--        <button class="search-send">검색</button>-->
-<!--    </div>-->
-<!--</nav>-->
-<!--<main>-->
-<!--    <script>console.log('user', user)</script>-->
-<!--    index 페이지 입니다.-->
-<!--</main>-->
-<!--    <script>-->
-<!--        document.querySelector('.search-send').addEventListener('click', () => {-->
-<!--            const inputVal = document.querySelector('.search').value;-->
-<!--            location.href = '/board/search?val=' + inputVal-->
-<!--        })-->
-<!--    </script>-->
+<nav>
+    <a href="/">NodeJS Study</a>
+    <a href="/board/list">게시판</a>
+    <a href="/auth/register">회원가입</a>
+    <a href="/auth/login">로그인</a>
+    <div class="search-box">
+        <input type="text" placeholder="검색어를 입력하세요" class="search">
+        <button class="search-send">검색</button>
+    </div>
+</nav>
+<main>
+    <%= user.username %>님!
+</main>
+<script>
+    document.querySelector('.search-send').addEventListener('click', () => {
+        const inputVal = document.querySelector('.search').value;
+        location.href = '/board/search?val=' + inputVal
+    })
+</script>
 </body>
 </html>

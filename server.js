@@ -116,7 +116,8 @@ app.use(checkAuthenticate) // 여 코드 밑에 있는 API는 미들웨어 적�
 app.get('/', (req, res) => {
     // html파일을 응답으로 보내려면 res.sendFile()
     //  현재 프로젝트 절대경로 + 보낼 html
-    res.sendFile(__dirname + '/index.html')
+    const user = req.user
+    res.render('../index.ejs', {user: user})
 })
 
 
