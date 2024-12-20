@@ -141,24 +141,11 @@ router.get('/list/:id', async (req, res) => {
     res.render('list.ejs', {post: result})
 })
 
-// 검색 이상함 ('사진' 안됨)
 router.get('/search', async (req, res) => {
-    console.log(req.query.val)
-
-    const searchCondition = [
-        {
-            $search: {
-                index: 'title_index',           // db 필드 이름
-                text: {query: req.query.val, path: 'title'}
-            }
-        },
-        // {조건2}, {조건3}
-    ]
-
-    const result = await db.collection('post')
-        .aggregate(searchCondition).toArray();
-
-    res.render('search.ejs', {post: result, word: req.query.val})
+    const post = await db.collection('post')
+        .find({title : { $regex : req.query.val }})
+        .toArray();
+    res.render('search.ejs', {post: post, word : req.query.val})
 })
 
 router.post('/comment', async (req, res) => {
