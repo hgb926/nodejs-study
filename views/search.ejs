@@ -60,6 +60,7 @@
     <% for (let i = 0; i < post.length; i++){ %>
     <div class="list-box">
         <h4>
+            <p><%= post[i].username%></p>
             <a class="detail" href="/board/detail/<%=post[i]._id%>">
                 <%= post[i].title%>
             </a>
