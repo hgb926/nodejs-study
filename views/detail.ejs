@@ -50,6 +50,8 @@
 <%- include("nav.ejs") %>
 <div class="detail-bg">
     <h4><%= post.title %></h4>
+    <p>글쓴이: <%= post.username%></p>
+    <p style="font-size: 14px; color: #808080">내용</p>
     <p><%= post.content %></p>
     <% if (post.image && post.image.trim() !== "") { %>
         <div class="frame">

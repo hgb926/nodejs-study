@@ -80,7 +80,6 @@ router.get('/detail/:id', async (req, res) => {
         commentList.forEach(ct => {
             ct.createdAt = moment(commentList.createdAt).format("YYYY-MM-DD")
         })
-
         res.render('detail.ejs', {post: post, commentList : commentList, user: req.user})
     } catch (e) {
         console.log(e)
@@ -142,6 +141,7 @@ router.get('/list/:id', async (req, res) => {
     res.render('list.ejs', {post: result})
 })
 
+// 검색 이상함 ('사진' 안됨)
 router.get('/search', async (req, res) => {
     console.log(req.query.val)
 

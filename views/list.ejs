@@ -8,29 +8,35 @@
         .grey-bg {
             background: #eee;
         }
+
         .white-bg {
             background: white;
             margin: 20px;
             border-radius: 5px;
         }
+
         .list-box {
-            padding : 10px;
-            border-bottom: 1px solid#eee;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
         }
-        .list-box h4{
+
+        .list-box h4 {
             font-size: 16px;
             margin: 5px;
         }
+
         .list-box p {
             font-size: 13px;
             margin: 5px;
             color: grey;
         }
+
         .search {
             margin-top: 20px;
             margin-left: 20px;
             padding: 5px;
         }
+
         .search-send {
             margin-left: 10px;
             padding: 6px 10px;
@@ -39,42 +45,50 @@
             border-radius: 5px;
             vertical-align: middle;
         }
+
         .detail {
             color: black;
             margin-right: 5px;
             font-size: 1.2rem;
             text-decoration: none;
         }
+
         .edit {
             text-decoration: none;
         }
     </style>
 </head>
 <body class="grey-bg">
-<%- include("nav.ejs")%>
-<input type="text" placeholder="검색어를 입력하세요" class="search">
-<button class="search-send">검색</button>
+<%- include("nav.ejs") %>
+<% if (post.length > 0) { %>
+    <input type="text" placeholder="검색어를 입력하세요" class="search">
+    <button class="search-send">검색</button>
+    <a href="/board/write">글쓰기</a>
+<% } else { %>
+    <h2>글이 없습니다.</h2>
+    <a href="/board/write">글쓰기</a>
+<% } %>
 
 <div class="white-bg">
     <% for (let i = 0; i < post.length; i++){ %>
     <div class="list-box">
         <h4>
-            <a class="detail" href="/board/detail/<%=post[i]._id%>">
-                <%= post[i].title%>
+            <a class="detail" href="/board/detail/<%= post[i]._id %>">
+                <%= post[i].title %>
             </a>
-            <span>(<%= post[i].commentCount || 0%>)</span>
+            <span>(<%= post[i].commentCount || 0 %>)</span>
             <% if (post[i].username === user.username) { %>
-            <a class="edit" href="/board/edit/<%=post[i]._id%>">✏️️</a>
-            <span class="delete" data-id="<%=post[i]._id%>" style="cursor: pointer">🗑️</span>
+            <a class="edit" href="/board/edit/<%= post[i]._id %>">✏️️</a>
+            <span class="delete" data-id="<%= post[i]._id %>" style="cursor: pointer">🗑️</span>
             <% } %>
         </h4>
-        <p><%= post[i].content%></p>
+        <p><%= post[i].content %></p>
     </div>
-    <%} %>
+    <% } %>
 </div>
-
-<a href="/list/<%=post[post.length - 1]._id%>">다음</a>
-
+<!--<% if (post.length > 0) { %>-->
+<!--<a href="/list/<%= post[post.length - 1]._id %>">다음</a>-->
+<!--<% } %>-->
 <script>
 
     document.querySelector('.search-send').addEventListener('click', () => {
@@ -83,7 +97,7 @@
     })
 
 
-    for(let i = 0; i < '<%= post.length %>'; i++) {
+    for (let i = 0; i < '<%= post.length %>'; i++) {
         document.querySelectorAll('.delete')[i].addEventListener('click', function (e) {
             fetch('/board/delete?docid=' + e.target.dataset.id, {
                 method: "DELETE",
