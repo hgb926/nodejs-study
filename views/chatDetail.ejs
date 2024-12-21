@@ -37,6 +37,7 @@
             justify-content: end;
         }
 
+
         .chat-input {
             margin-top: 15px;
             padding: 10px;
@@ -48,6 +49,12 @@
             border: none;
             background: lightgrey;
             border-radius: 5px;
+            cursor: pointer;
+        }
+        .time {
+            background: white !important;
+            font-size: 13px;
+            color: #a1a1a1;
         }
     </style>
 </head>
@@ -71,16 +78,30 @@
     const socket = io()     // chatRoom DocumentId로 룸 생성
     socket.emit('ask-join', '<%= result._id%>') //  [유저 -> 서버] 데이터 전송
 
-    document.querySelector('.chat-button').addEventListener('click', () => {
+     const sendMsg =  () => {
         const value = document.querySelector('.chat-input').value;
-        socket.emit('message', { msg : value, room : '<%= result._id%>', sendUser : '<%= user._id%>' })
-    })
+        if (!value) return
+        socket.emit('message', { msg : value, room : '<%= result._id%>', date: new Date(), sendUser : '<%= user._id%>' })
+    }
+
+    const checkEnterDown = (e) => {
+        if (e.keyCode === 13) {
+            sendMsg()
+        } else {
+            return
+        }
+    }
+
+    document.addEventListener('keydown', (e) => checkEnterDown(e))
+
+    document.querySelector('.chat-button').addEventListener('click', sendMsg )
 
     socket.on('broadcast', (data) => { // [서버 -> 유저] 데이터 수신
         console.log('broadcast : ', data)
         if (data.sendUser === '<%= user._id%>') { // 요청 보내는 사람과, 현재 로그인한 사람의 id가 일치할때
             document.querySelector('.chat-screen').insertAdjacentHTML('beforeend',
-                `<div class="chat-box mine"><span>${data.msg}</span></div>`)
+                `<div class="chat-box mine"><span class="time">${data.date}</span><span>${data.msg}</span></div>`)
+            document.querySelector('.chat-input').value = ''
         } else {
             document.querySelector('.chat-screen').insertAdjacentHTML('beforeend',
                 `<div class="chat-box"><span>${data.msg}</span></div>`)

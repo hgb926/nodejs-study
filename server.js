@@ -47,6 +47,7 @@ app.use(express.urlencoded({extended: true}))
 
 
 const connectDB = require('./database.js');
+const moment = require("moment/moment");
 
 let db;
 connectDB.then((client) => {
@@ -160,6 +161,7 @@ io.on('connection', (socket) => {
     // 유저가 특정 룸에 메세지 보내려면
     socket.on('message', (data) => {
         console.log('data ',data)
+        data.date = moment(data.date).format("HH:mm")
         // 채팅내용 날짜 부모documentid 작성자
         io.to(data.room).emit('broadcast', data)
     })
