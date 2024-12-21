@@ -30,6 +30,7 @@
             margin: 5px;
             color: grey;
         }
+
         .title {
             text-decoration: none;
             color: black;
@@ -40,13 +41,21 @@
 <%- include("nav.ejs") %>
 
 <div class="white-bg">
-    <% for (let i = 0; i < list.length; i++){ %>
-        <div class="list-box">
-            <h4>
-                <a class="title" href="/board/chat/detail/<%= list[i]._id%>"><%= list[i].title %></a>
-                <span><%= list[i].relativeTime%></span>
-            </h4>
-        </div>
+    <% if (list && list.length > 0) { %>
+        <% for (let i = 0; i < list.length; i++) { %>
+            <div class="list-box">
+                <h4>
+                    <a class="title" href="/board/chat/detail/<%= list[i]._id %>">
+                        채팅방: <%= list[i].usernames.join(' & ') %>
+                    </a>
+                    <span>
+                        <%= list[i].relativeTime || '시간 정보 없음' %>
+                    </span>
+                </h4>
+            </div>
+        <% } %>
+    <% } else { %>
+        <p>표시할 채팅방이 없습니다.</p>
     <% } %>
 </div>
 

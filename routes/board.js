@@ -189,14 +189,18 @@ router.get('/chat/request', async (req, res) => {
             return res.send("이미 있는 채팅방입니다");
         }
 
-        const writer = await db.collection('user').findOne({_id: new ObjectId(req.query.writerId)});
-        const title = writer.username + '님과의 채팅방'
-        console.log(title)
+        const roomMaker = await db.collection('user').findOne({
+            _id : req.user._id
+        });
+
+        const partner = await db.collection('user').findOne({
+            _id : new ObjectId(req.query.writerId)
+        });
 
         // 채팅방이 없으면 생성
         await db.collection('chatRoom').insertOne({
-            title,
             member: [req.user._id, new ObjectId(req.query.writerId)],
+            usernames: [roomMaker.username, partner.username],
             date: new Date(),
         });
 
@@ -226,8 +230,9 @@ router.get('/chat/list', async (req, res) => {
             chat.relativeTime = ''; // lastDate가 없을 경우 처리
         }
     }
+    console.log(list)
 
-    res.render('chatList.ejs', {list: list})
+    res.render('chatList.ejs', {list: list, user: req.user})
 })
 
 
