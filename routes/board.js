@@ -3,6 +3,7 @@ const router = require('express').Router();
 const connectDB = require('./../database.js')
 const {ObjectId} = require("mongodb");
 const moment = require('moment-timezone')
+const { formatRelativeTime } = require('../util/timeFormat');
 const {S3Client} = require('@aws-sdk/client-s3')
 const multer = require('multer')
 const multerS3 = require('multer-s3')
@@ -217,14 +218,14 @@ router.get('/chat/list', async (req, res) => {
         if (!flag) {
             return res.send("본인이 아닙니다."); // 조건에 맞지 않으면 즉시 응답
         }
-    }
 
-    list.forEach(ct => {
-        if (ct.date) { // date 값이 존재할 경우에만 변환
-            ct.date = moment(ct.date).tz('Asia/Seoul').format("YYYY-MM-DD HH:mm");
+        if (chat.lastDate) {
+            const diffInMs = new Date() - new Date(chat.lastDate);
+            chat.relativeTime = formatRelativeTime(diffInMs);
+        } else {
+            chat.relativeTime = ''; // lastDate가 없을 경우 처리
         }
-    });
-    console.log(list)
+    }
 
     res.render('chatList.ejs', {list: list})
 })

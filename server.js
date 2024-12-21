@@ -168,7 +168,11 @@ io.on('connection', (socket) => {
             writer: new ObjectId(data.sendUser),
         })
 
-
+        await db.collection('chatRoom').updateOne(
+            {_id: new ObjectId(data.room)},
+            {$set: {lastDate : new Date()}}
+        )
+        
         data.date = moment(data.date).tz('Asia/Seoul').format("HH:mm")
         io.to(data.room).emit('broadcast', data)
     })

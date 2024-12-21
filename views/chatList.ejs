@@ -25,7 +25,7 @@
             margin: 5px;
         }
 
-        .list-box p {
+        .list-box span {
             font-size: 13px;
             margin: 5px;
             color: grey;
@@ -44,9 +44,8 @@
         <div class="list-box">
             <h4>
                 <a class="title" href="/board/chat/detail/<%= list[i]._id%>"><%= list[i].title %></a>
-                <p><%= list[i].date%></p>
+                <span><%= list[i].relativeTime%></span>
             </h4>
-            <p>채팅방 설명</p>
         </div>
     <% } %>
 </div>
