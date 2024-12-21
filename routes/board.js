@@ -233,8 +233,16 @@ router.get('/chat/detail/:id', async (req, res) => {
     if (!flag) {
         return res.send("본인이 아닙니다~")
     }
+    const msgList = await db.collection('chatMsg').find({
+        room: new ObjectId(req.params.id)
+    }).toArray()
 
-    res.render('chatDetail.ejs', {result: result, user: req.user})
+    msgList.forEach(ct => {
+        ct.date = moment(msgList.date).format("HH:mm")
+    })
+
+
+    res.render('chatDetail.ejs', {result: result, user: req.user, msgList: msgList})
 })
 
 module.exports = router

@@ -62,11 +62,18 @@
 </head>
 <body class="grey-bg">
 <%- include("nav.ejs") %>
-<%= JSON.stringify(result) %>
 <div class="wrap">
     <div class="detail-bg">
+            <%= JSON.stringify(user._id)%>
         <div class="chat-screen">
-
+        <%= JSON.stringify(msgList[0].writer)%>
+            <% for (let i = 0; i < msgList.length; i++) { %>
+                <% if (String(user._id) === String(msgList[i].writer)) { %>
+                    <div class="chat-box mine"><span class="time"><%= msgList[i].date %></span><span><%= msgList[i].message%></span></div>
+                <% } else { %>
+                    <div class="chat-box"><span><%= msgList[i].message%></span><span class="time"><%= msgList[i].date%></span></div>
+                <% }%>
+            <% } %>
         </div>
     </div>
     <div class="chat-form">
@@ -94,7 +101,7 @@
         }
     }
 
-    document.addEventListener('keydown', () => checkEnterDown(e))
+    document.addEventListener('keydown', (e) => checkEnterDown(e))
 
     document.querySelector('.chat-button').addEventListener('click', sendMsg)
 
