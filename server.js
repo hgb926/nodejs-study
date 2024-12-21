@@ -9,6 +9,11 @@ const LocalStrategy = require('passport-local')
 const bcrypt = require('bcrypt')
 const MongoStore = require('connect-mongo')
 const env = require('dotenv')
+// webSocekt config
+const { createServer } = require('http')
+const { Server } = require('socket.io')
+const server = createServer(app)
+const io = new Server(server)
 env.config()
 
 
@@ -47,7 +52,7 @@ let db;
 connectDB.then((client) => {
     console.log("DB연결 성공");
     db = client.db("forum");
-    app.listen(process.env.PORT, () => { // 서버 띄우는 코드
+    server.listen(process.env.PORT, () => { // 서버 띄우는 코드
         console.log('http://localhost:8080에서 서버 실행중')
     })
 }).catch((err) => {
@@ -142,6 +147,20 @@ passport.use(new LocalStrategy(async (inputId, inputPw, cb) => {
     }
 }));
 
+io.on('connection', (socket) => {
+    socket.on('유저가 보낸 메세지', (data) => { // [유저 -> 서버] 데이터 수신
+        console.log('유저가 보낸거 ',data)
+        io.emit('서버가 보낸 메세지', 'server -> client') // [서버 -> 유저] 데이터 전송
+    })
+    // 위의 코드는 모든 유저에게 메세지를 전달한다. 채팅은 특정 인원에게만 전달해야 하므로 socket.join 사용
+    socket.on('ask-join', (data) => {
+        socket.join(data)
+    })
+    // 유저가 특정 룸에 메세지 보내려면
+    socket.on('message', (data) => {
+        io.to(data.room).emit('broadcast', data.msg)
+    })
+})
 
 app.use('/', require('./routes/practice.js'))
 app.use('/auth', require('./routes/auth.js'))
