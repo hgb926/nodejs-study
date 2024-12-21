@@ -234,7 +234,7 @@ router.get('/chat/detail/:id', async (req, res) => {
         return res.send("본인이 아닙니다~")
     }
 
-    res.render('chatDetail.ejs', {result: result})
+    res.render('chatDetail.ejs', {result: result, user: req.user})
 })
 
 module.exports = router

@@ -57,9 +57,7 @@
 <div class="wrap">
     <div class="detail-bg">
         <div class="chat-screen">
-            <div class="chat-box"><span>안녕하세요</span></div>
-            <div class="chat-box"><span>안녕하세요</span></div>
-            <div class="chat-box mine"><span>안녕하세요</span></div>
+
         </div>
     </div>
     <div class="chat-form">
@@ -75,13 +73,19 @@
 
     document.querySelector('.chat-button').addEventListener('click', () => {
         const value = document.querySelector('.chat-input').value;
-        socket.emit('message', { msg : value, room : '<%= result._id%>' })
+        socket.emit('message', { msg : value, room : '<%= result._id%>', sendUser : '<%= user._id%>' })
     })
 
     socket.on('broadcast', (data) => { // [서버 -> 유저] 데이터 수신
         console.log('broadcast : ', data)
-        document.querySelector('.chat-screen').insertAdjacentHTML('beforeend',
-        `<div class="chat-box"><span>${data}</span></div>`)
+        if (data.sendUser === '<%= user._id%>') { // 요청 보내는 사람과, 현재 로그인한 사람의 id가 일치할때
+            document.querySelector('.chat-screen').insertAdjacentHTML('beforeend',
+                `<div class="chat-box mine"><span>${data.msg}</span></div>`)
+        } else {
+            document.querySelector('.chat-screen').insertAdjacentHTML('beforeend',
+                `<div class="chat-box"><span>${data.msg}</span></div>`)
+        }
+
     })
 </script>
 

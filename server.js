@@ -159,9 +159,9 @@ io.on('connection', (socket) => {
     })
     // 유저가 특정 룸에 메세지 보내려면
     socket.on('message', (data) => {
-        console.log(data)
+        console.log('data ',data)
         // 채팅내용 날짜 부모documentid 작성자
-        io.to(data.room).emit('broadcast', data.msg)
+        io.to(data.room).emit('broadcast', data)
     })
 })
 
