@@ -69,6 +69,7 @@
 <script>
     let $lastMsg = document.querySelector('.lastMsg');
     $lastMsg.addEventListener('click', (e) => {
+        if (!$lastMsg) return
         const cno = $lastMsg.dataset.cno
         console.log(cno)
         window.location = `/board/chat/detail/${cno}`;

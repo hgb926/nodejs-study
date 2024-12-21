@@ -215,9 +215,13 @@ router.get('/chat/request', async (req, res) => {
 
 router.get('/chat/list', async (req, res) => {
 
-    const list = await db.collection('chatRoom').find({
+    let list = await db.collection('chatRoom').find({
         member: req.user._id
-    }).toArray();
+    }).toArray()
+    list = list.sort((a, b) => {
+        return new Date(b.lastDate) - new Date(a.lastDate);
+    });
+
     for (const chat of list) {
         const flag = chat.member.some(memberId => memberId.equals(req.user._id));
         if (!flag) {
