@@ -47,7 +47,7 @@ app.use(express.urlencoded({extended: true}))
 
 
 const connectDB = require('./database.js');
-const moment = require("moment/moment");
+const moment = require("moment-timezone");
 
 let db;
 connectDB.then((client) => {
@@ -165,10 +165,11 @@ io.on('connection', (socket) => {
             message: data.msg,
             room: new ObjectId(data.room),
             date: data.date,
-            writer: new ObjectId(data.sendUser)
+            writer: new ObjectId(data.sendUser),
         })
 
-        data.date = moment(data.date).format("HH:mm")
+
+        data.date = moment(data.date).tz('Asia/Seoul').format("HH:mm")
         io.to(data.room).emit('broadcast', data)
     })
 })

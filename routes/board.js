@@ -2,7 +2,7 @@ const router = require('express').Router();
 
 const connectDB = require('./../database.js')
 const {ObjectId} = require("mongodb");
-const moment = require('moment')
+const moment = require('moment-timezone')
 const {S3Client} = require('@aws-sdk/client-s3')
 const multer = require('multer')
 const multerS3 = require('multer-s3')
@@ -78,7 +78,7 @@ router.get('/detail/:id', async (req, res) => {
         const commentList = await db.collection('comment').find({post_id: new ObjectId(req.params.id)}).toArray();
 
         commentList.forEach(ct => {
-            ct.createdAt = moment(commentList.createdAt).format("YYYY-MM-DD")
+            ct.createdAt = moment(commentList.createdAt).tz('Asia/Seoul').format("YYYY-MM-DD")
         })
         res.render('detail.ejs', {post: post, commentList: commentList, user: req.user})
     } catch (e) {
@@ -180,7 +180,7 @@ router.get('/chat/request', async (req, res) => {
     try {
         // 해당 채팅방이 이미 존재하는지 확인
         const flag = await db.collection('chatRoom').findOne({
-            member: { $all: [req.user._id, new ObjectId(req.query.writerId)] }, // $all 사용
+            member: {$all: [req.user._id, new ObjectId(req.query.writerId)]}, // $all 사용
         });
 
         if (flag) {
@@ -188,7 +188,7 @@ router.get('/chat/request', async (req, res) => {
             return res.send("이미 있는 채팅방입니다");
         }
 
-        const writer = await db.collection('user').findOne({ _id: new ObjectId(req.query.writerId)});
+        const writer = await db.collection('user').findOne({_id: new ObjectId(req.query.writerId)});
         const title = writer.username + '님과의 채팅방'
         console.log(title)
 
@@ -218,12 +218,18 @@ router.get('/chat/list', async (req, res) => {
             return res.send("본인이 아닙니다."); // 조건에 맞지 않으면 즉시 응답
         }
     }
+
     list.forEach(ct => {
-        ct.date = moment(list.date).format("YYYY-MM-DD HH:mm")
-    })
+        if (ct.date) { // date 값이 존재할 경우에만 변환
+            ct.date = moment(ct.date).tz('Asia/Seoul').format("YYYY-MM-DD HH:mm");
+        }
+    });
+    console.log(list)
 
     res.render('chatList.ejs', {list: list})
 })
+
+
 
 router.get('/chat/detail/:id', async (req, res) => {
     const result = await db.collection('chatRoom').findOne({
@@ -237,9 +243,11 @@ router.get('/chat/detail/:id', async (req, res) => {
         room: new ObjectId(req.params.id)
     }).toArray()
 
-    msgList.forEach(ct => {
-        ct.date = moment(msgList.date).format("HH:mm")
-    })
+    if (msgList) {
+        msgList.forEach(ct => {
+            ct.date = moment(ct.date).tz('Asia/Seoul').format('HH:mm'); // KST로 변환
+        })
+    }
 
 
     res.render('chatDetail.ejs', {result: result, user: req.user, msgList: msgList})
