@@ -188,8 +188,13 @@ router.get('/chat/request', async (req, res) => {
             return res.send("이미 있는 채팅방입니다");
         }
 
+        const writer = await db.collection('user').findOne({ _id: new ObjectId(req.query.writerId)});
+        const title = req.user.username + '님, ' +  writer.username + '님'
+        console.log(title)
+
         // 채팅방이 없으면 생성
         await db.collection('chatRoom').insertOne({
+            title,
             member: [req.user._id, new ObjectId(req.query.writerId)],
             date: new Date(),
         });
