@@ -12,6 +12,7 @@
             border-radius: 16px;
             padding: 20px;
         }
+
         .detail-bg {
             background: white;
             padding: 15px;
@@ -51,6 +52,7 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
         .time {
             background: white !important;
             font-size: 13px;
@@ -60,7 +62,7 @@
 </head>
 <body class="grey-bg">
 <%- include("nav.ejs") %>
-<%= JSON.stringify(result)%>
+<%= JSON.stringify(result) %>
 <div class="wrap">
     <div class="detail-bg">
         <div class="chat-screen">
@@ -76,12 +78,12 @@
 <script src="https://cdn.jsdelivr.net/npm/socket.io@4.7.2/client-dist/socket.io.min.js"></script>
 <script>
     const socket = io()     // chatRoom DocumentId로 룸 생성
-    socket.emit('ask-join', '<%= result._id%>') //  [유저 -> 서버] 데이터 전송
+    socket.emit('ask-join', '<%= result._id %>') //  [유저 -> 서버] 데이터 전송
 
-     const sendMsg =  () => {
+    const sendMsg = () => {
         const value = document.querySelector('.chat-input').value;
         if (!value) return
-        socket.emit('message', { msg : value, room : '<%= result._id%>', date: new Date(), sendUser : '<%= user._id%>' })
+        socket.emit('message', {msg: value, room: '<%= result._id %>', date: new Date(), sendUser: '<%= user._id %>'})
     }
 
     const checkEnterDown = (e) => {
@@ -92,20 +94,18 @@
         }
     }
 
-    document.addEventListener('keydown', (e) => checkEnterDown(e))
+    document.addEventListener('keydown', () => checkEnterDown(e))
 
-    document.querySelector('.chat-button').addEventListener('click', sendMsg )
+    document.querySelector('.chat-button').addEventListener('click', sendMsg)
 
     socket.on('broadcast', (data) => { // [서버 -> 유저] 데이터 수신
         console.log('broadcast : ', data)
-        if (data.sendUser === '<%= user._id%>') { // 요청 보내는 사람과, 현재 로그인한 사람의 id가 일치할때
-            document.querySelector('.chat-screen').insertAdjacentHTML('beforeend',
-                `<div class="chat-box mine"><span class="time">${data.date}</span><span>${data.msg}</span></div>`)
-            document.querySelector('.chat-input').value = ''
-        } else {
-            document.querySelector('.chat-screen').insertAdjacentHTML('beforeend',
-                `<div class="chat-box"><span>${data.msg}</span></div>`)
-        }
+        // 요청 보내는 사람과, 현재 로그인한 사람의 id 확인
+        let tag = (data.sendUser === '<%= user._id %>') ?
+            `<div class="chat-box mine"><span class="time">${data.date}</span><span>${data.msg}</span></div>` :
+            `<div class="chat-box"><span>${data.msg}</span><span class="time">${data.date}</span></div>`
+        document.querySelector('.chat-screen').insertAdjacentHTML('beforeend', tag)
+        document.querySelector('.chat-input').value = ''
 
     })
 </script>
