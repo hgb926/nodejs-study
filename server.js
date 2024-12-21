@@ -154,10 +154,13 @@ io.on('connection', (socket) => {
     })
     // 위의 코드는 모든 유저에게 메세지를 전달한다. 채팅은 특정 인원에게만 전달해야 하므로 socket.join 사용
     socket.on('ask-join', (data) => {
+        // socket.request.session // 현재 로그인된 유저
         socket.join(data)
     })
     // 유저가 특정 룸에 메세지 보내려면
     socket.on('message', (data) => {
+        console.log(data)
+        // 채팅내용 날짜 부모documentid 작성자
         io.to(data.room).emit('broadcast', data.msg)
     })
 })

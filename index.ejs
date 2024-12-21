@@ -63,7 +63,7 @@
 </head>
 <body>
 
-<%- include("./views/nav.ejs") %>
+<%- include("./views/nav.ejs", { user : user }) %>
 
 <%= user.username%>!
 </body>

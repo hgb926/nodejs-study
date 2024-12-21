@@ -70,15 +70,18 @@
 
 <script src="https://cdn.jsdelivr.net/npm/socket.io@4.7.2/client-dist/socket.io.min.js"></script>
 <script>
-    const socket = io()
-    socket.emit('ask-join', '1') //  [유저 -> 서버] 데이터 전송
+    const socket = io()     // chatRoom DocumentId로 룸 생성
+    socket.emit('ask-join', '<%= result._id%>') //  [유저 -> 서버] 데이터 전송
 
     document.querySelector('.chat-button').addEventListener('click', () => {
-        socket.emit('message', { msg : '반가워', room : '1' })
+        const value = document.querySelector('.chat-input').value;
+        socket.emit('message', { msg : value, room : '<%= result._id%>' })
     })
 
     socket.on('broadcast', (data) => { // [서버 -> 유저] 데이터 수신
         console.log('broadcast : ', data)
+        document.querySelector('.chat-screen').insertAdjacentHTML('beforeend',
+        `<div class="chat-box"><span>${data}</span></div>`)
     })
 </script>
 

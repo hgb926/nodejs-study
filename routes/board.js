@@ -189,7 +189,7 @@ router.get('/chat/request', async (req, res) => {
         }
 
         const writer = await db.collection('user').findOne({ _id: new ObjectId(req.query.writerId)});
-        const title = req.user.username + '님, ' +  writer.username + '님'
+        const title = writer.username + '님과의 채팅방'
         console.log(title)
 
         // 채팅방이 없으면 생성
@@ -218,6 +218,10 @@ router.get('/chat/list', async (req, res) => {
             return res.send("본인이 아닙니다."); // 조건에 맞지 않으면 즉시 응답
         }
     }
+    list.forEach(ct => {
+        ct.date = moment(list.date).format("YYYY-MM-DD HH:mm")
+    })
+
     res.render('chatList.ejs', {list: list})
 })
 
