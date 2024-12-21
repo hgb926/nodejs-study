@@ -170,9 +170,12 @@ io.on('connection', (socket) => {
 
         await db.collection('chatRoom').updateOne(
             {_id: new ObjectId(data.room)},
-            {$set: {lastDate : new Date()}}
+            {$set: {
+                lastDate : new Date(),
+                    lastMsg : data.msg
+            }},
         )
-        
+
         data.date = moment(data.date).tz('Asia/Seoul').format("HH:mm")
         io.to(data.room).emit('broadcast', data)
     })

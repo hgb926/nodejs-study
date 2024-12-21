@@ -35,6 +35,13 @@
             text-decoration: none;
             color: black;
         }
+        .lastMsg {
+            cursor: pointer;
+            margin-bottom: 0;
+        }
+        .lastMsg:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body class="grey-bg">
@@ -46,11 +53,12 @@
             <div class="list-box">
                 <h4>
                     <a class="title" href="/board/chat/detail/<%= list[i]._id %>">
-                        채팅방: <%= list[i].usernames.join(' & ') %>
+                        <%= list[i].usernames.filter(n => n !== user.username) %>
                     </a>
                     <span>
                         <%= list[i].relativeTime || '시간 정보 없음' %>
                     </span>
+                    <p class="lastMsg" data-cno="<%= list[i]._id%>"><%= list[i].lastMsg%></p>
                 </h4>
             </div>
         <% } %>
@@ -58,6 +66,14 @@
         <p>표시할 채팅방이 없습니다.</p>
     <% } %>
 </div>
+<script>
+    let $lastMsg = document.querySelector('.lastMsg');
+    $lastMsg.addEventListener('click', (e) => {
+        const cno = $lastMsg.dataset.cno
+        console.log(cno)
+        window.location = `/board/chat/detail/${cno}`;
+    })
+</script>
 
 </body>
 </html>

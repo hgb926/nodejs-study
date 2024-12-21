@@ -202,6 +202,7 @@ router.get('/chat/request', async (req, res) => {
             member: [req.user._id, new ObjectId(req.query.writerId)],
             usernames: [roomMaker.username, partner.username],
             date: new Date(),
+            lastMsg : " "
         });
 
         // 채팅방 목록으로 리다이렉트
@@ -230,11 +231,8 @@ router.get('/chat/list', async (req, res) => {
             chat.relativeTime = ''; // lastDate가 없을 경우 처리
         }
     }
-    console.log(list)
-
     res.render('chatList.ejs', {list: list, user: req.user})
 })
-
 
 
 router.get('/chat/detail/:id', async (req, res) => {
