@@ -186,7 +186,11 @@ router.get('/chat/request', async (req, res) => {
 
         if (flag) {
             // 채팅방이 이미 존재할 경우
-            return res.send("이미 있는 채팅방입니다");
+            const chatRoom = await db.collection('chatRoom').findOne({
+                member : [req.user._id, new ObjectId(req.query.writerId)]
+            });
+            console.log(chatRoom)
+            return res.redirect(`/board/chat/detail/${chatRoom._id}`)
         }
 
         const roomMaker = await db.collection('user').findOne({
