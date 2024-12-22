@@ -38,6 +38,10 @@
             justify-content: end;
         }
 
+        .chat-form {
+            display: flex;
+            gap: 10px;
+        }
 
         .chat-input {
             margin-top: 15px;
@@ -51,6 +55,7 @@
             background: lightgrey;
             border-radius: 5px;
             cursor: pointer;
+            width: 10%;
         }
 
         .time {
@@ -58,10 +63,19 @@
             font-size: 13px;
             color: #a1a1a1;
         }
+        .title {
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 500;
+        }
+        .chat-input {
+            width: 85%;
+        }
     </style>
 </head>
 <body class="grey-bg">
 <%- include("nav.ejs") %>
+<h1 class="title"><%= result.usernames.filter(n => n !== user.username) %>님과의 채팅</h1>
 <div class="wrap">
     <div class="detail-bg">
         <div class="chat-screen">
