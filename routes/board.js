@@ -42,6 +42,7 @@ connectDB.then((client) => {
 
 router.get('/list', async (req, res) => {
     let result = await db.collection('post').find().toArray() // findAll()
+    result = result.reverse()
     // ejs파일 렌더링은 res.sendFile이 아닌 res.render
     res.render('list.ejs', {post: result, user: req.user})
 })
@@ -69,7 +70,8 @@ router.post('/add', upload.single('image'), async (req, res) => {
             image: req.file ? req.file.location : "",
             commentCount: 0,
             user: req.user._id,
-            username: req.user.username
+            username: req.user.username,
+            createdAt: new Date()
         })
         res.redirect("/board/list")
 
