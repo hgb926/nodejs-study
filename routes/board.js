@@ -3,7 +3,7 @@ const router = require('express').Router();
 const connectDB = require('./../database.js')
 const {ObjectId} = require("mongodb");
 const moment = require('moment-timezone')
-const { formatRelativeTime } = require('../util/timeFormat');
+const {formatRelativeTime} = require('../util/timeFormat');
 const {S3Client} = require('@aws-sdk/client-s3')
 const multer = require('multer')
 const multerS3 = require('multer-s3')
@@ -27,8 +27,15 @@ const upload = multer({
 
 
 let db;
+let changeStream;
 connectDB.then((client) => {
     db = client.db("forum")
+    const condition = [
+        { $match : { operationType : 'insert' } }
+    ]
+
+    changeStream = db.collection('post').watch(condition);
+
 }).catch((err) => {
     console.log(err)
 })
@@ -187,18 +194,18 @@ router.get('/chat/request', async (req, res) => {
         if (flag) {
             // 채팅방이 이미 존재할 경우
             const chatRoom = await db.collection('chatRoom').findOne({
-                member : [req.user._id, new ObjectId(req.query.writerId)]
+                member: [req.user._id, new ObjectId(req.query.writerId)]
             });
             console.log(chatRoom)
             return res.redirect(`/board/chat/detail/${chatRoom._id}`)
         }
 
         const roomMaker = await db.collection('user').findOne({
-            _id : req.user._id
+            _id: req.user._id
         });
 
         const partner = await db.collection('user').findOne({
-            _id : new ObjectId(req.query.writerId)
+            _id: new ObjectId(req.query.writerId)
         });
 
         // 채팅방이 없으면 생성
@@ -206,7 +213,7 @@ router.get('/chat/request', async (req, res) => {
             member: [req.user._id, new ObjectId(req.query.writerId)],
             usernames: [roomMaker.username, partner.username],
             date: new Date(),
-            lastMsg : " "
+            lastMsg: " "
         });
 
         // 채팅방 목록으로 리다이렉트
@@ -263,6 +270,21 @@ router.get('/chat/detail/:id', async (req, res) => {
 
 
     res.render('chatDetail.ejs', {result: result, user: req.user, msgList: msgList})
+})
+
+router.get('/stream/list', (req, res) => {
+    res.writeHead(200, {
+        "Connection": "keep-alive",
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache"
+    })
+    changeStream.on('change', (result) => {
+        console.log(result.fullDocument)
+        // res.write를 최소 2개 써야함
+        res.write("event: msg\n") // 계행 1개
+        res.write(`data: ${JSON.stringify(result.fullDocument)}\n\n`) // 계행 2개
+    })
+
 })
 
 module.exports = router
