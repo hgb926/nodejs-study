@@ -116,10 +116,20 @@
 <script>
     const eventSource = new EventSource('/board/stream/list');
     eventSource.addEventListener('msg', (e) => {
-        console.log(e.data)
         const parseData = JSON.parse(e.data)
         console.log(parseData)
-        document.querySelector('.white-bg').insertAdjacentHTML('afterbegin', `<div class="list-box"><h4>${parseData.title}</h4></div>`)
+        document.querySelector('.white-bg').insertAdjacentHTML('afterbegin',
+            `<div class="list-box">` + `
+            <h4> ` +
+                `<p>${parseData.username}</p> ` +
+                `<a class="detail" href="/board/detail/${parseData._id}">` +
+                    `${parseData.title}` +
+                `</a>` +
+                `<span>(0)</span>` +
+            `</h4>` +
+            `<p>${parseData.content}</p>` +
+        `</div>`
+        )
     })
 </script>
 </body>
